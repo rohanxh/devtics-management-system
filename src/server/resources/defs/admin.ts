@@ -104,6 +104,7 @@ const ownEmployee = (a: { userId: string }) => eq(employees.userId, a.userId);
 defineResource({
   key: 'employees', table: employees, label: 'Employee', plural: 'Employees', module: 'people', perm: 'employees',
   titleField: 'firstName', titleSql: sql`${employees.firstName} || ' ' || ${employees.lastName}`, defaultSort: 'firstName',
+  formatTitle: (r) => `${r.firstName} ${r.lastName}`,
   scopes: {
     own: ownEmployee,
     team: (a) => or(ownEmployee(a), sql`${employees.managerId} = (select e.id from employees e where e.user_id = ${a.userId})`)!,

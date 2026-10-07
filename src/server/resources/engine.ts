@@ -212,7 +212,7 @@ export async function serialize(db: DB, def: ResourceDef, actor: Actor, rows: Ro
       if (r[k]) labels[k] = labelMaps.get(f.type === 'stage' ? '__stage' : f.ref!)?.get(r[k]) ?? '—';
     }
     out._labels = labels;
-    out._title = r[def.titleField];
+    out._title = def.formatTitle ? def.formatTitle(r) : r[def.titleField];
     return out;
   });
 }
@@ -345,7 +345,7 @@ export async function update(ctx: Ctx, key: string, id: string, body: unknown): 
 /** Emits domain events and activity entries for a create/update. Also used by bespoke services. */
 export async function afterWrite(tx: DB, def: ResourceDef, actor: Actor | null, row: Row, prev: Row | undefined) {
   const actorId = actor?.userId ?? null;
-  const title = String(row[def.titleField] ?? '');
+  const title = String((def.formatTitle ? def.formatTitle(row) : row[def.titleField]) ?? '');
   const base = { id: row.id, title };
   if (!prev) {
     await emit(tx, { type: `${def.key}.created`, entityType: def.key, entityId: row.id, actorUserId: actorId, payload: base });

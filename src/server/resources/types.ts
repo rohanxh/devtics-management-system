@@ -65,6 +65,8 @@ export interface ResourceDef {
   titleField: string;
   /** Optional SQL expression for the title (e.g. first || ' ' || last). */
   titleSql?: SQL;
+  /** Builds the display title from a row (keep consistent with titleSql). */
+  formatTitle?: (row: Row) => string;
   description?: string;
   fields: Record<string, FieldDef>;
   /** Record-level scope rules applied when the actor's grant scope is `own` / `team`. */
