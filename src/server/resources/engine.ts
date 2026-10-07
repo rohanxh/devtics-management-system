@@ -486,6 +486,7 @@ export function resourceMeta(def: ResourceDef, actor: Actor) {
     numberField: def.numbering?.field, assignees: def.assignees, board: def.board,
     children: def.children?.filter((c) => { const t = getResource(c.resource); return t && canAction(t, actor, 'view'); }),
     collab: def.collab,
+    viewScope: (() => { const p = permFor(def, 'view'); return p ? actor.perms.get(p) ?? null : null; })(),
     can: {
       view: canAction(def, actor, 'view'), create: canAction(def, actor, 'create'), edit: canAction(def, actor, 'edit'),
       delete: canAction(def, actor, 'delete'), export: canAction(def, actor, 'export'),

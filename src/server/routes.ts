@@ -18,6 +18,7 @@ import { hrRoutes } from './modules/hr.ts';
 import './modules/kpi.ts';
 import './modules/it.ts';
 import './modules/marketing.ts';
+import './modules/admin-dashboard.ts';
 import { supportRoutes } from './modules/support.ts';
 import { kbRoutes } from './modules/kb.ts';
 import { executiveRoutes } from './modules/executive.ts';

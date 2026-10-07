@@ -33,6 +33,7 @@ export interface ResourceMeta {
   board?: string;
   children?: { resource: string; field: string; label?: string }[];
   collab?: { comments?: boolean; files?: boolean };
+  viewScope?: 'own' | 'team' | 'all' | null;
   can: { view: boolean; create: boolean; edit: boolean; delete: boolean; export: boolean };
 }
 

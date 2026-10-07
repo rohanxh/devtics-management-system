@@ -14,7 +14,9 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const groups = NAV.map((g) => ({
     ...g,
     items: g.items.filter((i) =>
-      (!i.resource || meta.resources[i.resource]) && (!i.perm || i.perm in perms) && (!i.anyPerm || i.anyPerm.some((p) => p in perms))),
+      (!i.resource || meta.resources[i.resource]) && (!i.perm || i.perm in perms) && (!i.anyPerm || i.anyPerm.some((p) => p in perms))
+      && !(i.teamOnly && meta.resources[i.resource!]?.viewScope === 'own')
+      && !(i.ownOnly && meta.resources[i.resource!]?.viewScope !== 'own')),
   })).filter((g) => g.items.length);
   return (
     <nav aria-label="Main" className="flex h-full flex-col overflow-y-auto px-3 py-4">

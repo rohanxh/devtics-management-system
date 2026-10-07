@@ -8,3 +8,4 @@ import './marketing';
 import './support';
 import './kb';
 import './executive';
+import './admin-home';

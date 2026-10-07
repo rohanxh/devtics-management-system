@@ -6,10 +6,17 @@ import {
   AlertTriangle, GitBranch, type LucideIcon, Inbox, Timer, PlaneTakeoff, Star, Banknote, Landmark, Award,
 } from 'lucide-react';
 
-export interface NavItem { label: string; to: string; icon: LucideIcon; resource?: string; perm?: string; anyPerm?: string[] }
+export interface NavItem {
+  label: string; to: string; icon: LucideIcon; resource?: string; perm?: string; anyPerm?: string[];
+  /** Self-service resources: hidden from team sections when the user can only see their own records (they appear under “Me”). */
+  teamOnly?: boolean;
+  /** Shown only when the user's access to the resource is own-scope (the “Me” section). */
+  ownOnly?: boolean;
+}
 export interface NavGroup { label: string; items: NavItem[] }
 
-const r = (label: string, resource: string, icon: LucideIcon): NavItem => ({ label, to: `/r/${resource}`, icon, resource });
+const r = (label: string, resource: string, icon: LucideIcon, extra: Partial<NavItem> = {}): NavItem => ({ label, to: `/r/${resource}`, icon, resource, ...extra });
+const me = (label: string, resource: string, icon: LucideIcon) => r(label, resource, icon, { ownOnly: true });
 
 export const NAV: NavGroup[] = [
   {
@@ -18,6 +25,16 @@ export const NAV: NavGroup[] = [
       { label: 'My work', to: '/my-work', icon: CheckSquare, resource: 'tasks' },
       { label: 'Approvals', to: '/approvals', icon: ShieldCheck },
       { label: 'Inbox', to: '/notifications', icon: Inbox },
+    ],
+  },
+  {
+    label: 'Me', items: [
+      me('My leave', 'leave_requests', PlaneTakeoff),
+      me('My payslips', 'payroll_items', Banknote),
+      me('My expenses', 'expenses', Wallet),
+      me('My equipment', 'assets', Laptop),
+      me('My reviews', 'performance_reviews', Star),
+      me('My time', 'time_entries', Timer),
     ],
   },
   {
@@ -49,7 +66,7 @@ export const NAV: NavGroup[] = [
       r('Milestones', 'milestones', Milestone),
       r('Change requests', 'change_requests', Workflow),
       r('Risks & issues', 'project_risks', AlertTriangle),
-      r('Time entries', 'time_entries', Timer),
+      r('Time entries', 'time_entries', Timer, { teamOnly: true }),
     ],
   },
   {
@@ -71,21 +88,21 @@ export const NAV: NavGroup[] = [
       r('Invoices', 'invoices', Receipt),
       r('Payments', 'payments', CreditCard),
       r('Recurring billing', 'recurring_billing', CalendarDays),
-      r('Expenses', 'expenses', Wallet),
-      r('Payroll runs', 'payroll_runs', Banknote),
-      r('Compensation', 'compensation', Landmark),
-      r('Bonuses & deductions', 'employee_adjustments', Banknote),
+      r('Expenses', 'expenses', Wallet, { teamOnly: true }),
+      r('Payroll runs', 'payroll_runs', Banknote, { teamOnly: true }),
+      r('Compensation', 'compensation', Landmark, { teamOnly: true }),
+      r('Bonuses & deductions', 'employee_adjustments', Banknote, { teamOnly: true }),
     ],
   },
   {
     label: 'People', items: [
-      r('Employees', 'employees', Users),
+      r('Employees', 'employees', Users, { teamOnly: true }),
       { label: 'Attendance', to: '/attendance', icon: Clock, resource: 'attendance' },
-      r('Leave', 'leave_requests', PlaneTakeoff),
-      r('Performance reviews', 'performance_reviews', Star),
-      r('Training', 'trainings', BookOpen),
-      r('Job openings', 'job_openings', Briefcase),
-      r('Candidates', 'applications', UserPlus),
+      r('Leave', 'leave_requests', PlaneTakeoff, { teamOnly: true }),
+      r('Performance reviews', 'performance_reviews', Star, { teamOnly: true }),
+      r('Training', 'trainings', BookOpen, { teamOnly: true }),
+      r('Job openings', 'job_openings', Briefcase, { teamOnly: true }),
+      r('Candidates', 'applications', UserPlus, { teamOnly: true }),
     ],
   },
   {
@@ -97,10 +114,10 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'IT', items: [
-      r('Assets', 'assets', Laptop),
-      r('Software & licenses', 'subscriptions', Package),
+      r('Assets', 'assets', Laptop, { teamOnly: true }),
+      r('Software & licenses', 'subscriptions', Package, { teamOnly: true }),
       r('Infrastructure', 'infra_resources', HardDrive),
-      r('Access records', 'access_grants', KeyRound),
+      r('Access records', 'access_grants', KeyRound, { teamOnly: true }),
     ],
   },
   {
@@ -121,11 +138,11 @@ export const NAV: NavGroup[] = [
     label: 'Admin', items: [
       { label: 'Users', to: '/admin/users', icon: Users, perm: 'users.view' },
       { label: 'Roles & permissions', to: '/admin/roles', icon: Shield, perm: 'roles.view' },
-      r('Departments', 'departments', Building2),
-      r('Designations', 'designations', Award),
-      r('Locations', 'locations', Globe),
-      r('Working hours', 'work_schedules', Clock),
-      r('Holidays', 'holidays', CalendarDays),
+      r('Departments', 'departments', Building2, { perm: 'org.manage' }),
+      r('Designations', 'designations', Award, { perm: 'org.manage' }),
+      r('Locations', 'locations', Globe, { perm: 'org.manage' }),
+      r('Working hours', 'work_schedules', Clock, { perm: 'org.manage' }),
+      r('Holidays', 'holidays', CalendarDays, { perm: 'org.manage' }),
       { label: 'Pipelines', to: '/r/pipeline_stages', icon: Workflow, perm: 'settings.manage' },
       { label: 'Automation', to: '/admin/automation', icon: Workflow, perm: 'automation.view' },
       { label: 'Audit log', to: '/admin/audit', icon: ScrollText, perm: 'audit.view' },
