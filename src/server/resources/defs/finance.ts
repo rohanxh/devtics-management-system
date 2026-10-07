@@ -149,6 +149,7 @@ defineResource({
     description: { type: 'text', label: 'Description', required: true, list: true, search: true },
     companyId: { type: 'ref', ref: 'clients', label: 'Client', required: true, list: true, filter: true },
     projectId: { type: 'ref', ref: 'projects', label: 'Project', filter: true },
+    maintenancePlanId: { type: 'ref', ref: 'maintenance_plans', label: 'Maintenance plan', readonly: true, filter: true },
     amount: { type: 'money', label: 'Amount', required: true, list: true, min: 0 },
     currency: CURRENCY,
     interval: { type: 'enum', label: 'Interval', options: ['monthly', 'quarterly', 'yearly'], list: true, filter: true, default: 'monthly' },

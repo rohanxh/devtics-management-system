@@ -1,8 +1,10 @@
 import { pgTable, pgEnum, text, boolean, integer, date, uuid, index, uniqueIndex, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import { id, timestamps, tstz } from './_helpers.ts';
 import { users } from './core.ts';
-import { projects, tasks, priority } from './projects.ts';
+import { projects, tasks } from './projects.ts';
+import { priority } from './enums.ts';
 import { infraResources } from './it.ts';
+import { tickets } from './support.ts';
 
 export const gitProvider = pgEnum('git_provider', ['github', 'gitlab', 'bitbucket', 'other']);
 
@@ -99,8 +101,7 @@ export const bugs = pgTable('bugs', {
   introducedById: uuid().references(() => users.id),
   qaRunId: uuid().references((): AnyPgColumn => qaRuns.id, { onDelete: 'set null' }),
   testCaseId: uuid().references((): AnyPgColumn => testCases.id, { onDelete: 'set null' }),
-  /** FK added with the support module. */
-  ticketId: uuid(),
+  ticketId: uuid().references((): AnyPgColumn => tickets.id, { onDelete: 'set null' }),
   retestCount: integer().notNull().default(0),
   resolvedAt: tstz(),
   closedAt: tstz(),

@@ -192,3 +192,30 @@ RULE_SEEDS.push(
     eventType: 'leads.created', actions: [{ action: 'notify_roles', params: { roles: ['bd'], title: 'New lead: {title}' } }],
   },
 );
+
+// ── Support ──
+RULE_SEEDS.push(
+  assign('tickets', 'ticket'),
+  {
+    key: 'tickets.urgent.alert', name: 'Urgent ticket', description: 'Alert Support and the account manager when an urgent ticket arrives.',
+    eventType: 'tickets.created', conditions: { priority: 'urgent' },
+    actions: [{ action: 'notify_company_manager', params: { roles: ['support', 'cto'], kind: 'escalation', title: 'Urgent ticket from {client}: {title}' } }],
+  },
+  {
+    key: 'tickets.new.support', name: 'New ticket → Support', description: 'Tell Support about new tickets.',
+    eventType: 'tickets.created', actions: [{ action: 'notify_roles', params: { roles: ['support'], title: 'New ticket: {title}' } }],
+  },
+  {
+    key: 'tickets.sync.tasks', name: 'Task progress updates ticket', description: 'Tickets move to QA when the linked task reaches QA/done.',
+    eventType: 'tasks.status_changed', conditions: { to: ['qa', 'done'] }, actions: [{ action: 'support.sync_from_work' }],
+  },
+  {
+    key: 'tickets.sync.bugs', name: 'Bug progress updates ticket', description: 'Tickets move to QA / resolved as the linked bug is retested and verified.',
+    eventType: 'bugs.status_changed', conditions: { to: ['ready_for_retest', 'verified', 'closed'] }, actions: [{ action: 'support.sync_from_work' }],
+  },
+  {
+    key: 'tickets.resolved.notify', name: 'Ticket resolved', description: 'Tell the account manager a client ticket was resolved.',
+    eventType: 'tickets.status_changed', conditions: { to: 'resolved' },
+    actions: [{ action: 'notify_company_manager', params: { kind: 'status', title: 'Resolved for {client}: {title}' } }],
+  },
+);

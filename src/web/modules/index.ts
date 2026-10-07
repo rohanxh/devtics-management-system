@@ -5,3 +5,4 @@ import './finance';
 import './hr';
 import './it';
 import './marketing';
+import './support';

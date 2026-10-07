@@ -71,7 +71,8 @@ defineResource({
   children: [
     { resource: 'contacts', field: 'companyId' }, { resource: 'projects', field: 'clientId' },
     { resource: 'contracts', field: 'companyId' }, { resource: 'client_feedback', field: 'companyId', label: 'Feedback' },
-    { resource: 'communications', field: 'companyId' },
+    { resource: 'communications', field: 'companyId' }, { resource: 'invoices', field: 'companyId' }, { resource: 'payments', field: 'companyId' },
+    { resource: 'tickets', field: 'companyId', label: 'Support' }, { resource: 'maintenance_plans', field: 'companyId' },
   ],
 });
 

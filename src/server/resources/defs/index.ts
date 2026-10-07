@@ -6,3 +6,4 @@ import './finance.ts';
 import './hr.ts';
 import './it.ts';
 import './marketing.ts';
+import './support.ts';

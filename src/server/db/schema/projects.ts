@@ -4,13 +4,13 @@ import {
 import { id, timestamps, money, tstz } from './_helpers.ts';
 import { users, pipelineStages } from './core.ts';
 import { companies, contacts, opportunities, contracts } from './crm.ts';
-import { projectType } from './enums.ts';
+import { projectType, priority } from './enums.ts';
+import { tickets } from './support.ts';
 
 export const projectStatus = pgEnum('project_status', [
   'on_track', 'at_risk', 'delayed', 'awaiting_client', 'awaiting_design', 'awaiting_development',
   'in_qa', 'ready_for_launch', 'on_hold', 'completed', 'cancelled',
 ]);
-export const priority = pgEnum('priority', ['low', 'medium', 'high', 'critical']);
 export const billingType = pgEnum('billing_type', ['fixed', 'hourly', 'retainer', 'internal']);
 
 export const projects = pgTable('projects', {
@@ -129,8 +129,7 @@ export const timeEntries = pgTable('time_entries', {
   userId: uuid().notNull().references(() => users.id),
   projectId: uuid().references(() => projects.id),
   taskId: uuid().references(() => tasks.id, { onDelete: 'set null' }),
-  /** FK added with the support module. */
-  ticketId: uuid(),
+  ticketId: uuid().references((): AnyPgColumn => tickets.id, { onDelete: 'set null' }),
   workDate: date().notNull(),
   minutes: integer().notNull(),
   description: text(),

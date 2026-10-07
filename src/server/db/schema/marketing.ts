@@ -2,7 +2,8 @@ import { pgTable, pgEnum, text, integer, date, uuid, index, uniqueIndex } from '
 import { id, timestamps, money } from './_helpers.ts';
 import { users, pipelineStages } from './core.ts';
 import { companies } from './crm.ts';
-import { projects, priority } from './projects.ts';
+import { projects } from './projects.ts';
+import { priority } from './enums.ts';
 
 export const campaignChannel = pgEnum('campaign_channel', ['seo', 'ppc', 'social', 'email', 'content', 'event', 'referral', 'partnership', 'other']);
 export const campaignStatus = pgEnum('campaign_status', ['planned', 'active', 'paused', 'completed']);

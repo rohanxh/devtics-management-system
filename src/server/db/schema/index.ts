@@ -8,3 +8,4 @@ export * from './hr.ts';
 export * from './strategy.ts';
 export * from './it.ts';
 export * from './marketing.ts';
+export * from './support.ts';

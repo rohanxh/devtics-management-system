@@ -267,6 +267,7 @@ defineResource({
     userId: { type: 'ref', ref: 'users', label: 'Person', createOnly: true, list: true, filter: true, default: me },
     projectId: { type: 'ref', ref: 'projects', label: 'Project', list: true, filter: true },
     taskId: { type: 'ref', ref: 'tasks', label: 'Task', list: true, filter: true },
+    ticketId: { type: 'ref', ref: 'tickets', label: 'Support ticket', filter: true },
     minutes: { type: 'int', label: 'Minutes', required: true, list: true, min: 1, max: 1440 },
     billable: { type: 'bool', label: 'Billable', list: true, filter: true, default: true },
     description: { type: 'text', label: 'What was done', list: true, max: 1000 },

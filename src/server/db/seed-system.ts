@@ -1,6 +1,6 @@
 import { count, eq, inArray } from 'drizzle-orm';
 import type { DB } from './client.ts';
-import { automationRules, leaveTypes, pipelineStages, rolePermissions, roles, settings } from './schema/index.ts';
+import { automationRules, leaveTypes, pipelineStages, rolePermissions, roles, settings, slaPolicies, slaTargets } from './schema/index.ts';
 import { ROLE_SEEDS, expandGrants } from '../rbac/defaults.ts';
 import { withActor } from '../core/context.ts';
 import { seedQaTemplates } from './seed-qa-templates.ts';
@@ -112,6 +112,18 @@ export async function seedSystem(db: DB) {
     }
 
     await seedQaTemplates(tx);
+
+    // Default SLA policy (wall-clock minutes; editable in Support › SLA policies).
+    const [{ sp }] = await tx.select({ sp: count() }).from(slaPolicies);
+    if (Number(sp) === 0) {
+      const [p] = await tx.insert(slaPolicies).values({ name: 'Standard', isDefault: true, description: 'Default response and resolution targets.' }).returning();
+      await tx.insert(slaTargets).values([
+        { policyId: p.id, priority: 'urgent', firstResponseMinutes: 60, resolutionMinutes: 8 * 60 },
+        { policyId: p.id, priority: 'high', firstResponseMinutes: 4 * 60, resolutionMinutes: 24 * 60 },
+        { policyId: p.id, priority: 'medium', firstResponseMinutes: 8 * 60, resolutionMinutes: 72 * 60 },
+        { policyId: p.id, priority: 'low', firstResponseMinutes: 24 * 60, resolutionMinutes: 120 * 60 },
+      ]);
+    }
 
     // Default leave policy (editable in People › Leave types).
     const [{ lt }] = await tx.select({ lt: count() }).from(leaveTypes);

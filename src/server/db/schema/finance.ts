@@ -1,9 +1,10 @@
-import { pgTable, pgEnum, text, date, uuid, index, uniqueIndex, integer, boolean, numeric } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, text, date, uuid, index, uniqueIndex, integer, boolean, numeric, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import { id, timestamps, money, tstz } from './_helpers.ts';
 import { users, employees } from './core.ts';
 import { companies, contracts } from './crm.ts';
 import { projects, milestones } from './projects.ts';
 import { subscriptions, infraResources } from './it.ts';
+import { maintenancePlans } from './support.ts';
 
 export const compensationReason = pgEnum('compensation_reason', ['hire', 'annual_review', 'promotion', 'adjustment', 'correction']);
 
@@ -35,8 +36,7 @@ export const invoices = pgTable('invoices', {
   projectId: uuid().references(() => projects.id),
   contractId: uuid().references(() => contracts.id),
   milestoneId: uuid().references(() => milestones.id),
-  /** FK added with the support module. */
-  maintenancePlanId: uuid(),
+  maintenancePlanId: uuid().references((): AnyPgColumn => maintenancePlans.id),
   recurringBillingId: uuid(),
   status: invoiceStatus().notNull().default('draft'),
   issueDate: date().notNull(),
@@ -92,8 +92,7 @@ export const recurringBilling = pgTable('recurring_billing', {
   id: id(),
   companyId: uuid().notNull().references(() => companies.id),
   projectId: uuid().references(() => projects.id),
-  /** FK added with the support module. */
-  maintenancePlanId: uuid(),
+  maintenancePlanId: uuid().references((): AnyPgColumn => maintenancePlans.id),
   description: text().notNull(),
   amount: money().notNull(),
   currency: text().notNull().default('USD'),
