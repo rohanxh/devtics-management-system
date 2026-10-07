@@ -114,7 +114,7 @@ export const NAV: NavGroup[] = [
   },
   {
     label: 'Knowledge', items: [
-      { label: 'Knowledge base', to: '/kb', icon: BookOpen, resource: 'kb_articles' },
+      { label: 'Knowledge base', to: '/kb', icon: BookOpen, perm: 'kb.view' },
     ],
   },
   {

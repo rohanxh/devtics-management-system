@@ -6,3 +6,4 @@ import './seed-demo-hr.ts';
 import './seed-demo-it.ts';
 import './seed-demo-marketing.ts';
 import './seed-demo-support.ts';
+import './seed-demo-kb.ts';

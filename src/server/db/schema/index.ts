@@ -9,3 +9,4 @@ export * from './strategy.ts';
 export * from './it.ts';
 export * from './marketing.ts';
 export * from './support.ts';
+export * from './kb.ts';

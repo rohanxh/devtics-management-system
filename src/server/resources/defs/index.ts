@@ -7,3 +7,4 @@ import './hr.ts';
 import './it.ts';
 import './marketing.ts';
 import './support.ts';
+import './kb.ts';
