@@ -18,8 +18,8 @@ registerDashboard({
       .where(gte(leads.createdAt, new Date(daysAgo(90)))).groupBy(leads.source).orderBy(sql`count(*) desc`);
     const camp = await ctx.db.select({
       id: campaigns.id, name: campaigns.name, channel: campaigns.channel, status: campaigns.status, spend: campaigns.spend, budget: campaigns.budget,
-      leads: sql<number>`(select count(*)::int from leads l where l.campaign_id = ${campaigns.id})`,
-      converted: sql<number>`(select count(*)::int from leads l where l.campaign_id = ${campaigns.id} and l.status = 'converted')`,
+      leads: sql<number>`(select count(*)::int from leads l where l.campaign_id = campaigns.id)`,
+      converted: sql<number>`(select count(*)::int from leads l where l.campaign_id = campaigns.id and l.status = 'converted')`,
     }).from(campaigns).where(sql`${campaigns.status} in ('active', 'planned') or ${campaigns.endDate} >= ${daysAgo(60)}`).orderBy(desc(campaigns.startDate));
     const pipeline = await ctx.db.select({ key: pipelineStages.key, name: pipelineStages.name, n: sql<number>`count(${contentItems.id})::int` })
       .from(pipelineStages).leftJoin(contentItems, eq(contentItems.stageId, pipelineStages.id))

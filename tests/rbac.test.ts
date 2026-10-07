@@ -93,6 +93,15 @@ describe('authorization', () => {
     expect((await api.put(`/api/admin/users/${user.id}/roles`, { roleKeys: ['admin', 'ceo'] })).status).toBe(403);
   });
 
+  it('counts users per role correctly', async () => {
+    const { api } = await t.as(['admin']);
+    const roles = (await api.get('/api/admin/roles')).body;
+    const admins = roles.find((r: any) => r.key === 'admin');
+    const res: any = await t.db.execute(sql`select count(*)::int as n from user_roles ur join roles r on r.id = ur.role_id where r.key = 'admin'`);
+    expect(admins.userCount).toBe(res.rows[0].n);
+    expect(admins.userCount).toBeGreaterThan(0);
+  });
+
   it('provisions users with a one-time temporary password', async () => {
     const { api } = await t.as(['admin']);
     const res = await api.post('/api/admin/users', { name: 'New Person', email: 'new.person@test.local', roleKeys: ['developer'] });

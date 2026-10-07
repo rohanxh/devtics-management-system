@@ -47,11 +47,11 @@ export async function projectPortfolio(ctx: Ctx, opts: { managedOnly?: boolean }
     id: projects.id, code: projects.code, name: projects.name, status: projects.status, stageId: projects.stageId,
     stageName: pipelineStages.name, stageColor: pipelineStages.color, dueDate: projects.dueDate, pmId: projects.pmId,
     pmName: users.name, budgetHours: projects.budgetHours, clientId: projects.clientId, priority: projects.priority,
-    tasksTotal: sql<number>`(select count(*)::int from tasks t where t.project_id = ${projects.id} and t.parent_task_id is null)`,
-    tasksDone: sql<number>`(select count(*)::int from tasks t where t.project_id = ${projects.id} and t.parent_task_id is null and t.status = 'done')`,
-    tasksOverdue: sql<number>`(select count(*)::int from tasks t where t.project_id = ${projects.id} and t.status <> 'done' and t.due_date < current_date)`,
-    minutesLogged: sql<number>`(select coalesce(sum(te.minutes), 0)::int from time_entries te where te.project_id = ${projects.id})`,
-    clientName: sql<string>`(select c.name from companies c where c.id = ${projects.clientId})`,
+    tasksTotal: sql<number>`(select count(*)::int from tasks t where t.project_id = projects.id and t.parent_task_id is null)`,
+    tasksDone: sql<number>`(select count(*)::int from tasks t where t.project_id = projects.id and t.parent_task_id is null and t.status = 'done')`,
+    tasksOverdue: sql<number>`(select count(*)::int from tasks t where t.project_id = projects.id and t.status <> 'done' and t.due_date < current_date)`,
+    minutesLogged: sql<number>`(select coalesce(sum(te.minutes), 0)::int from time_entries te where te.project_id = projects.id)`,
+    clientName: sql<string>`(select c.name from companies c where c.id = projects.client_id)`,
   }).from(projects)
     .innerJoin(pipelineStages, eq(pipelineStages.id, projects.stageId))
     .leftJoin(users, eq(users.id, projects.pmId))

@@ -283,12 +283,12 @@ registerDashboard({
       .from(performanceReviews).innerJoin(employees, eq(employees.id, performanceReviews.employeeId))
       .where(and(notInArray(performanceReviews.status, ['completed', 'cancelled']), lte(performanceReviews.dueDate, sql`current_date + 30`))).orderBy(asc(performanceReviews.dueDate));
     const openings = await ctx.db.select({ id: jobOpenings.id, title: jobOpenings.title, openings: jobOpenings.openings, hiredCount: jobOpenings.hiredCount,
-      applicants: sql<number>`(select count(*)::int from applications a where a.job_opening_id = ${jobOpenings.id} and a.status = 'active')` })
+      applicants: sql<number>`(select count(*)::int from applications a where a.job_opening_id = job_openings.id and a.status = 'active')` })
       .from(jobOpenings).where(eq(jobOpenings.status, 'open'));
     const funnel = await ctx.db.select({ name: pipelineStages.name, key: pipelineStages.key, count: sql<number>`count(${applications.id})::int` }).from(pipelineStages)
       .leftJoin(applications, and(eq(applications.stageId, pipelineStages.id), inArray(applications.status, ['active', 'hired'])))
       .where(eq(pipelineStages.pipeline, 'recruitment')).groupBy(pipelineStages.id).orderBy(pipelineStages.sortOrder);
-    const expiring = await ctx.db.select({ id: certifications.id, name: certifications.name, expiresOn: certifications.expiresOn, employeeId: certifications.employeeId, who: sql<string>`(select e.first_name || ' ' || e.last_name from employees e where e.id = ${certifications.employeeId})` })
+    const expiring = await ctx.db.select({ id: certifications.id, name: certifications.name, expiresOn: certifications.expiresOn, employeeId: certifications.employeeId, who: sql<string>`(select e.first_name || ' ' || e.last_name from employees e where e.id = certifications.employee_id)` })
       .from(certifications).where(and(gte(certifications.expiresOn, today()), lte(certifications.expiresOn, sql`current_date + 60`)));
     const expiringDocs = await ctx.db.select({ id: files.id, name: files.originalName, expiresOn: files.expiresOn, employeeId: files.entityId })
       .from(files).where(and(eq(files.entityType, 'employees'), sql`${files.deletedAt} is null`, gte(files.expiresOn, today()), lte(files.expiresOn, sql`current_date + 60`)));

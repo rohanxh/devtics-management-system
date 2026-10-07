@@ -49,7 +49,7 @@ export async function adminRoutes(app: FastifyInstance) {
     assertCan(ctx.actor, 'roles.view');
     const list = await ctx.db.select({
       id: roles.id, key: roles.key, name: roles.name, description: roles.description, isSystem: roles.isSystem,
-      homeDashboard: roles.homeDashboard, userCount: sql<number>`(select count(*)::int from user_roles ur where ur.role_id = ${roles.id})`,
+      homeDashboard: roles.homeDashboard, userCount: sql<number>`(select count(*)::int from user_roles ur where ur.role_id = roles.id)`,
     }).from(roles).orderBy(roles.name);
     const grants = await roleGrants(ctx.db, list.map((r) => r.id));
     return list.map((r) => ({ ...r, grants: grants.filter((g) => g.roleId === r.id).map((g) => ({ permission: g.permission, scope: g.scope })) }));
