@@ -6,3 +6,4 @@ export * from './finance.ts';
 export * from './engineering.ts';
 export * from './hr.ts';
 export * from './strategy.ts';
+export * from './it.ts';

@@ -9,7 +9,7 @@ import { seedQaTemplates } from './seed-qa-templates.ts';
  * Bump when ROLE_SEEDS gains permissions. Grants are re-applied additively (never removed),
  * so admin customisations survive while new modules become reachable.
  */
-export const ROLE_SEED_VERSION = 4;
+export const ROLE_SEED_VERSION = 5;
 
 export const STAGE_SEEDS: Record<string, { key: string; name: string; color: string; terminal?: boolean; outcome?: string }[]> = {
   project: [

@@ -25,7 +25,7 @@ defineResource({
     defaultBranch: { type: 'text', label: 'Default branch', default: 'main', list: true },
     isPrivate: { type: 'bool', label: 'Private', default: true },
     branchingStrategy: { type: 'textarea', label: 'Branching strategy' },
-    notes: { type: 'textarea', label: 'Notes' },
+    notes: { type: 'textarea', label: 'Notes', noSecrets: true },
   },
   children: [{ resource: 'pull_requests', field: 'repositoryId' }, { resource: 'tech_debt', field: 'repositoryId' }],
 });
@@ -40,7 +40,7 @@ defineResource({
     url: { type: 'url', label: 'URL', list: true },
     branch: { type: 'text', label: 'Deployed branch' },
     status: { type: 'enum', label: 'Health', options: ['healthy', 'degraded', 'down', 'unknown'], list: true, filter: true, default: 'unknown' },
-    notes: { type: 'textarea', label: 'Notes (never store credentials here)' },
+    notes: { type: 'textarea', label: 'Notes (never store credentials here)', noSecrets: true },
   },
   children: [{ resource: 'deployments', field: 'environmentId' }],
 });

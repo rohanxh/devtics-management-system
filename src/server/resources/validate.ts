@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { FieldDef } from './types.ts';
+import { looksLikeSecret, VAULT_REFERENCE } from '../core/secrets.ts';
 
 const DECIMAL = /^-?\d{1,12}(\.\d{1,4})?$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -42,7 +43,9 @@ function base(f: FieldDef): z.ZodType {
 }
 
 export function fieldSchema(f: FieldDef, mode: 'create' | 'update'): z.ZodType {
-  const s = base(f);
+  let s = base(f);
+  if (f.noSecrets) s = (s as z.ZodString).refine((v) => typeof v !== 'string' || !looksLikeSecret(v), 'Looks like a password or secret — store it in the password manager and reference it instead');
+  if (f.vaultReference) s = (s as z.ZodString).refine((v) => typeof v !== 'string' || VAULT_REFERENCE.test(v), 'Use a password-manager reference such as op://vault/item or a vault URL — never the secret itself');
   if (f.required) {
     const req = z.preprocess(blankToNull, s);
     return mode === 'update' ? req.optional() : req;

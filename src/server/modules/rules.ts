@@ -173,3 +173,11 @@ RULE_SEEDS.push(
     eventType: 'employee.hired', actions: [{ action: 'notify_roles', params: { roles: ['it'], title: 'Prepare accounts & equipment for {title}' } }],
   },
 );
+
+// ── IT ──
+RULE_SEEDS.push(
+  {
+    key: 'employees.left.offboarding', name: 'Employee left → offboarding', description: 'Tell IT and HR which access to revoke and which devices to recover.',
+    eventType: 'employees.status_changed', conditions: { to: ['terminated', 'resigned'] }, actions: [{ action: 'it.offboarding' }],
+  },
+);

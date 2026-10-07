@@ -3,3 +3,4 @@ import './seed-demo-crm.ts';
 import './seed-demo-engineering.ts';
 import './seed-demo-finance.ts';
 import './seed-demo-hr.ts';
+import './seed-demo-it.ts';

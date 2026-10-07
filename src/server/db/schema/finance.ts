@@ -3,6 +3,7 @@ import { id, timestamps, money, tstz } from './_helpers.ts';
 import { users, employees } from './core.ts';
 import { companies, contracts } from './crm.ts';
 import { projects, milestones } from './projects.ts';
+import { subscriptions, infraResources } from './it.ts';
 
 export const compensationReason = pgEnum('compensation_reason', ['hire', 'annual_review', 'promotion', 'adjustment', 'correction']);
 
@@ -127,9 +128,8 @@ export const expenses = pgTable('expenses', {
   submittedById: uuid().references(() => users.id),
   approvedById: uuid().references(() => users.id),
   paidAt: date(),
-  /** Links added with the IT module (subscriptions / infrastructure). */
-  subscriptionId: uuid(),
-  infraResourceId: uuid(),
+  subscriptionId: uuid().references(() => subscriptions.id),
+  infraResourceId: uuid().references(() => infraResources.id),
   ...timestamps,
 }, (t) => [index('expenses_project_idx').on(t.projectId), index('expenses_date_idx').on(t.expenseDate), index('expenses_status_idx').on(t.status)]);
 

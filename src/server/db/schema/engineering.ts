@@ -2,6 +2,7 @@ import { pgTable, pgEnum, text, boolean, integer, date, uuid, index, uniqueIndex
 import { id, timestamps, tstz } from './_helpers.ts';
 import { users } from './core.ts';
 import { projects, tasks, priority } from './projects.ts';
+import { infraResources } from './it.ts';
 
 export const gitProvider = pgEnum('git_provider', ['github', 'gitlab', 'bitbucket', 'other']);
 
@@ -28,8 +29,8 @@ export const environments = pgTable('environments', {
   kind: envKind().notNull().default('staging'),
   url: text(),
   branch: text(),
-  /** Reference to an infrastructure record (FK added with the IT module). */
-  infraResourceId: uuid(),
+  /** Hosting / server record this environment runs on. */
+  infraResourceId: uuid().references(() => infraResources.id),
   status: envStatus().notNull().default('unknown'),
   notes: text(),
   ...timestamps,

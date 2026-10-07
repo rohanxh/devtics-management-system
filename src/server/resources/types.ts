@@ -38,6 +38,10 @@ export interface FieldDef {
   min?: number;
   max?: number;
   help?: string;
+  /** Reject values that look like credentials (keys, tokens, "password: …"). */
+  noSecrets?: boolean;
+  /** Only accept a password-manager reference (op://…, bw://…, https://vault…), never the secret itself. */
+  vaultReference?: boolean;
   /** Hidden from generic forms (still readable). */
   hidden?: boolean;
   /** Form section heading. */
