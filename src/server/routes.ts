@@ -20,6 +20,7 @@ import './modules/it.ts';
 import './modules/marketing.ts';
 import { supportRoutes } from './modules/support.ts';
 import { kbRoutes } from './modules/kb.ts';
+import { executiveRoutes } from './modules/executive.ts';
 
 export async function registerRoutes(app: FastifyInstance) {
   await authRoutes(app);
@@ -35,4 +36,5 @@ export async function registerRoutes(app: FastifyInstance) {
   await hrRoutes(app);
   await supportRoutes(app);
   await kbRoutes(app);
+  await executiveRoutes(app);
 }
