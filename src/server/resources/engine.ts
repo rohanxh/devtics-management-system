@@ -282,6 +282,21 @@ function parseBody(def: ResourceDef, actor: Actor, body: unknown, mode: 'create'
   return data;
 }
 
+/** A field write permission held only at own/team scope applies only to rows inside that scope. */
+async function checkScopedFieldWrites(ctx: Ctx, def: ResourceDef, data: Record<string, any>, prev?: Row) {
+  for (const k of Object.keys(data)) {
+    const f = def.fields[k];
+    const p = f?.writePermission ?? f?.readPermission;
+    if (!p) continue;
+    const scope = ctx.actor.perms.get(p);
+    if (!scope || scope === 'all') continue;
+    if (!prev) throw forbidden(`You cannot set "${f.label}" here`);
+    const rule = f.readScope ?? (scope === 'team' ? (def.scopes?.team ?? def.scopes?.own) : def.scopes?.own);
+    const ok = rule && (await ctx.db.select({ id: col(def, 'id') }).from(def.table).where(and(eq(col(def, 'id'), prev.id), rule(ctx.actor))).limit(1)).length > 0;
+    if (!ok) throw forbidden(`You cannot change "${f.label}" on this record`);
+  }
+}
+
 function checkAssignment(def: ResourceDef, actor: Actor, data: Record<string, any>, prev?: Row) {
   const perm = assignPerm(def);
   if (!perm || can(actor, perm) || !def.assignees) return;
@@ -312,6 +327,7 @@ export async function create(ctx: Ctx, key: string, body: unknown): Promise<Row>
     }
   }
   checkAssignment(def, ctx.actor, data);
+  await checkScopedFieldWrites(ctx, def, data);
   await checkRefs(ctx, def, data);
 
   const row = await inTx(ctx, async (tx) => {
@@ -333,6 +349,7 @@ export async function update(ctx: Ctx, key: string, id: string, body: unknown): 
   const prev = await getOne(ctx, key, id, 'edit');
   const data = parseBody(def, ctx.actor, body, 'update', prev);
   checkAssignment(def, ctx.actor, data, prev);
+  await checkScopedFieldWrites(ctx, def, data, prev);
   if (def.status && data[def.status.field] !== undefined && data[def.status.field] !== prev[def.status.field]) {
     const allowed = def.status.transitions?.[prev[def.status.field]];
     if (def.status.transitions && !allowed?.includes(data[def.status.field])) {

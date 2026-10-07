@@ -1,6 +1,6 @@
-import { eq, inArray } from 'drizzle-orm';
+import { count, eq, inArray } from 'drizzle-orm';
 import type { DB } from './client.ts';
-import { automationRules, pipelineStages, rolePermissions, roles, settings } from './schema/index.ts';
+import { automationRules, leaveTypes, pipelineStages, rolePermissions, roles, settings } from './schema/index.ts';
 import { ROLE_SEEDS, expandGrants } from '../rbac/defaults.ts';
 import { withActor } from '../core/context.ts';
 import { seedQaTemplates } from './seed-qa-templates.ts';
@@ -9,7 +9,7 @@ import { seedQaTemplates } from './seed-qa-templates.ts';
  * Bump when ROLE_SEEDS gains permissions. Grants are re-applied additively (never removed),
  * so admin customisations survive while new modules become reachable.
  */
-export const ROLE_SEED_VERSION = 2;
+export const ROLE_SEED_VERSION = 4;
 
 export const STAGE_SEEDS: Record<string, { key: string; name: string; color: string; terminal?: boolean; outcome?: string }[]> = {
   project: [
@@ -112,5 +112,16 @@ export async function seedSystem(db: DB) {
     }
 
     await seedQaTemplates(tx);
+
+    // Default leave policy (editable in People › Leave types).
+    const [{ lt }] = await tx.select({ lt: count() }).from(leaveTypes);
+    if (Number(lt) === 0) {
+      await tx.insert(leaveTypes).values([
+        { name: 'Annual leave', code: 'AL', annualAllowanceDays: '18', carryForwardMaxDays: '5' },
+        { name: 'Sick leave', code: 'SL', annualAllowanceDays: '10' },
+        { name: 'Casual leave', code: 'CL', annualAllowanceDays: '8' },
+        { name: 'Unpaid leave', code: 'UL', annualAllowanceDays: '0', isPaid: false },
+      ]);
+    }
   });
 }

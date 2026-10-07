@@ -152,3 +152,24 @@ RULE_SEEDS.push(
     eventType: 'payroll_runs.created', actions: [{ action: 'notify_roles', params: { roles: ['ceo', 'finance'], kind: 'approval_request', title: 'Payroll {title} ready for approval' } }],
   },
 );
+
+// ── HR ──
+RULE_SEEDS.push(
+  assign('performance_reviews', 'performance review'),
+  assign('interviews', 'interview'),
+  assign('goals', 'goal'),
+  assign('initiatives', 'initiative'),
+  {
+    key: 'applications.hired', name: 'Candidate hired → employee onboarding', description: 'Create the employee record and notify HR, IT and Admin to onboard.',
+    eventType: 'applications.stage_changed', conditions: { to: 'hired' }, actions: [{ action: 'hr.hire_candidate' }],
+  },
+  {
+    key: 'leave_requests.decided', name: 'Leave decided', description: 'Tell the employee when their leave is approved or rejected.',
+    eventType: 'leave_requests.status_changed', conditions: { to: ['approved', 'rejected'] },
+    actions: [{ action: 'notify_employee', params: { title: 'Your leave was {to}' } }],
+  },
+  {
+    key: 'employee.hired.it_access', name: 'New hire → IT access', description: 'Ask IT to prepare accounts and equipment for a new hire.',
+    eventType: 'employee.hired', actions: [{ action: 'notify_roles', params: { roles: ['it'], title: 'Prepare accounts & equipment for {title}' } }],
+  },
+);

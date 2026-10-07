@@ -110,6 +110,16 @@ defineResource({
     team: (a) => or(ownEmployee(a), sql`${employees.managerId} = (select e.id from employees e where e.user_id = ${a.userId})`)!,
   },
   collab: { comments: true, files: true },
+  // Contracts, IDs, medical and payroll documents: HR (or the employee themself) only — not managers.
+  privateFiles: { categories: ['contract', 'id', 'medical', 'payroll', 'private'], permission: 'employees_sensitive.view' },
+  children: [
+    { resource: 'employee_job_history', field: 'employeeId', label: 'Career history' }, { resource: 'employee_skills', field: 'employeeId', label: 'Skills' },
+    { resource: 'certifications', field: 'employeeId' }, { resource: 'emergency_contacts', field: 'employeeId' },
+    { resource: 'leave_requests', field: 'employeeId', label: 'Leave' }, { resource: 'leave_balances', field: 'employeeId', label: 'Leave balances' },
+    { resource: 'attendance', field: 'employeeId' }, { resource: 'performance_reviews', field: 'employeeId', label: 'Reviews' },
+    { resource: 'trainings', field: 'employeeId', label: 'Training' }, { resource: 'compensation', field: 'employeeId', label: 'Salary history' },
+    { resource: 'payroll_items', field: 'employeeId', label: 'Payslips' }, { resource: 'goals', field: 'employeeId', label: 'Goals' },
+  ],
   fields: {
     employeeCode: { type: 'text', label: 'Employee ID', required: true, list: true, search: true, max: 20, group: 'Employment' },
     firstName: { type: 'text', label: 'First name', required: true, list: true, search: true, group: 'Profile' },

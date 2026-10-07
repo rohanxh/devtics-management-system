@@ -14,14 +14,24 @@ describe('authorization', () => {
     expect((await api.post('/api/admin/users', { name: 'X', email: 'x@test.local' })).status).toBe(403);
   });
 
-  it('limits a developer to their own employee record and hides private HR fields', async () => {
+  it('limits a developer to their own employee record; private fields only on their own record', async () => {
     const other = await t.createUser([]);
     const { api, user } = await t.as(['developer']);
     const list = await api.get('/api/r/employees');
     expect(list.status).toBe(200);
     expect(list.body.rows).toHaveLength(1);
     expect(list.body.rows[0].id).toBe(user.employeeId);
-    expect(list.body.rows[0]).not.toHaveProperty('dateOfBirth');
+    expect(list.body.rows[0]).toHaveProperty('dateOfBirth'); // self-service on own record
+    // A manager sees direct reports but not their private fields
+    const mgr = await t.as(['pm']);
+    const { db } = t;
+    const { employees } = await import('../src/server/db/schema/index.ts');
+    const { eq } = await import('drizzle-orm');
+    await db.update(employees).set({ managerId: mgr.user.employeeId }).where(eq(employees.id, other.employeeId!));
+    const report = (await mgr.api.get(`/api/r/employees/${other.employeeId}`)).body;
+    expect(report.firstName).toBeTruthy();
+    expect(report).not.toHaveProperty('dateOfBirth');
+    expect((await mgr.api.patch(`/api/r/employees/${other.employeeId}`, { dateOfBirth: '1990-01-01' })).status).toBe(403);
     // IDOR: another employee's record is not found, not forbidden.
     expect((await api.get(`/api/r/employees/${other.employeeId}`)).status).toBe(404);
   });

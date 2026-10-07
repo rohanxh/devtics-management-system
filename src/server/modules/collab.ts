@@ -15,6 +15,19 @@ import { isUuid } from '../resources/validate.ts';
 type P = { key: string; id: string };
 
 /** Comments, attachments, activity and per-record audit history. Authorization always flows from the parent record. */
+/** Private attachment categories the actor may not see on this record (e.g. employee contracts for a manager). */
+async function hiddenCategories(ctx: ReturnType<typeof ctxOf>, key: string, id: string): Promise<Set<string>> {
+  const def = requireResource(key);
+  if (!def.privateFiles) return new Set();
+  const scope = ctx.actor.perms.get(def.privateFiles.permission);
+  if (scope === 'all') return new Set();
+  if (scope && def.scopes?.own) {
+    const own = await ctx.db.select({ id: (def.table as any).id }).from(def.table).where(and(eq((def.table as any).id, id), def.scopes.own(ctx.actor)));
+    if (own.length) return new Set();
+  }
+  return new Set(def.privateFiles.categories);
+}
+
 export async function collabRoutes(app: FastifyInstance) {
   const { storage } = app.deps;
 
@@ -92,12 +105,14 @@ export async function collabRoutes(app: FastifyInstance) {
   app.get<{ Params: P }>('/api/r/:key/:id/files', async (req) => {
     const ctx = ctxOf(req);
     await assertVisible(ctx.db, ctx.actor, req.params.key, req.params.id);
-    return ctx.db.select({
+    const hidden = await hiddenCategories(ctx, req.params.key, req.params.id);
+    const rows = await ctx.db.select({
       id: files.id, originalName: files.originalName, mimeType: files.mimeType, sizeBytes: files.sizeBytes,
       category: files.category, expiresOn: files.expiresOn, createdAt: files.createdAt, uploadedByName: users.name, uploadedBy: files.uploadedBy,
     }).from(files).innerJoin(users, eq(users.id, files.uploadedBy))
       .where(and(eq(files.entityType, req.params.key), eq(files.entityId, req.params.id), isNull(files.deletedAt)))
       .orderBy(desc(files.createdAt));
+    return rows.filter((f) => !f.category || !hidden.has(f.category));
   });
 
   app.post<{ Params: P; Querystring: { category?: string; expiresOn?: string } }>('/api/r/:key/:id/files', async (req, reply) => {
@@ -133,6 +148,7 @@ export async function collabRoutes(app: FastifyInstance) {
     const [f] = await ctx.db.select().from(files).where(and(eq(files.id, req.params.id), isNull(files.deletedAt)));
     // Not-found (rather than 403) avoids confirming that a file exists.
     if (!f || !(await isVisible(ctx.db, ctx.actor, f.entityType, f.entityId))) throw notFound('File');
+    if (f.category && (await hiddenCategories(ctx, f.entityType, f.entityId)).has(f.category)) throw notFound('File');
     return { ctx, f };
   }
 

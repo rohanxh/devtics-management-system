@@ -19,6 +19,8 @@ const BASE = [
   'attendance.view@own', 'attendance.create@own', 'leave.view@own', 'leave.create@own',
   'performance.view@own', 'goals.view', 'kb.view', 'projects.view@own', 'org.view',
   'payroll.view@own', 'compensation.view@own', 'expenses.view@own', 'expenses.create@own',
+  'employees_sensitive.view@own', 'employees_sensitive.edit@own', 'recruitment.view@own', 'recruitment.edit@own',
+  'leave.edit@own', 'performance.edit@own',
 ];
 
 const DELIVERY_IC = [

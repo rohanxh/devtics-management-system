@@ -91,6 +91,8 @@ export interface ResourceDef {
   children?: { resource: string; field: string; label?: string }[];
   /** Field to group the Kanban board by (enum or stage). */
   board?: string;
+  /** Attachments in these categories are only visible to holders of `permission` (or on the record's own-scope rows). */
+  privateFiles?: { categories: string[]; permission: string };
   /** Collaboration features on the detail page. */
   collab?: { comments?: boolean; files?: boolean };
   hooks?: {

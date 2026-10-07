@@ -13,6 +13,7 @@ import { useToast } from '../components/toast';
 import { DASHBOARDS, greeting } from '../pages/Home';
 import { ApprovalsList } from '../pages/Inbox';
 import { EngineeringSection } from './engineering';
+import { MyAttendanceCard } from './hr';
 
 // ───────────── Time logging ─────────────
 
@@ -271,6 +272,7 @@ function DeveloperDashboard() {
           <EngineeringSection data={d.engineering} />
         </div>
         <div className="space-y-4">
+          <MyAttendanceCard />
           <Card title="My projects">
             {!d.projects.length ? <p className="text-sm text-slate-500">Not on any active project.</p> : (
               <ul className="space-y-2">{d.projects.map((p: any) => (

@@ -43,6 +43,13 @@
       "when": 1791407578875,
       "tag": "0005_finance",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791408077743,
+      "tag": "0006_hr_strategy",
+      "breakpoints": true
     }
   ]
 }
