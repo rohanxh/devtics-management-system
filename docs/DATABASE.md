@@ -65,3 +65,53 @@ Module tables are documented in their sections as they are added.
 | `meeting_notes`, `project_updates`, `client_feedback` | Communication, daily/weekly/client updates, escalations, client review requests & satisfaction. |
 | `project_onboardings` | Won-deal onboarding workflow state (BD → PM → CTO → Development). |
 | `employee_compensation` | Effective-dated salary history incl. hourly cost (finance-restricted). |
+
+## Engineering & QA (Phase 4)
+| Table | Purpose |
+|---|---|
+| `repositories`, `environments` | Code repositories and dev/staging/production environments per project (environment → infra record). |
+| `pull_requests` | Code reviews (author ≠ reviewer), linked to tasks. |
+| `deployments` | Deployment history; production requires CTO approval (`pending_approval → approved → succeeded/failed`). |
+| `bugs` | Severity, priority, steps, expected/actual, fix/QA status, introduced-by, retest count; links to QA run/test case/ticket. |
+| `qa_templates`, `qa_template_items` | Reusable QA checklists (seeded library). |
+| `test_cases`, `qa_runs`, `qa_run_results` | Project test cases, test cycles, per-case results (pass/fail/blocked/skipped) with linked bugs. |
+| `tech_reviews`, `tech_debt`, `technologies`, `project_technologies` | CTO approvals, debt register, technology standards and per-project stack. |
+
+## Finance (Phase 5)
+| Table | Purpose |
+|---|---|
+| `invoices`, `invoice_items` | Client invoices; totals in SQL; `amount_paid`/`balance_due`/status derived from payments. |
+| `payments` | Receipts against invoices (overpayment rejected). |
+| `recurring_billing` | Schedules that draft invoices (retainers, maintenance plans). |
+| `expenses` | Expenses/payables by category; project link drives infrastructure/other cost. |
+| `payroll_runs`, `payroll_items`, `employee_adjustments` | Payroll from salary history + approved bonuses/deductions/advances. |
+
+## HR & strategy (Phase 6)
+| Table | Purpose |
+|---|---|
+| `emergency_contacts`, `skills`, `employee_skills`, `certifications`, `employee_job_history` | Employee records; promotions/transfers update the employee. |
+| `attendance_records` | One row per employee/day: clock in/out, worked/late/early/overtime minutes, status, source. |
+| `leave_types`, `leave_balances`, `leave_requests` | Leave policy, per-year balances, requests linked to approvals. |
+| `performance_reviews`, `trainings` | Reviews (self → manager → completed) and training records. |
+| `job_openings`, `candidates`, `applications`, `interviews` | Recruitment pipeline (configurable `recruitment` stages). |
+| `goals`, `kpis`, `kpi_values`, `initiatives` | OKRs/targets (optionally auto-measured), KPI history, strategic initiatives. |
+
+## IT (Phase 7)
+| Table | Purpose |
+|---|---|
+| `assets`, `asset_assignments` | Equipment and assignment history. |
+| `subscriptions`, `license_assignments` | SaaS/licenses with seats. `vault_reference` points to the password manager — **no secrets stored**. |
+| `infra_resources` | Domains, hosting, servers, cloud accounts, SSL, APIs, DNS with expiry. |
+| `access_grants` | Who has access to which system (onboarding/offboarding). |
+
+## Marketing (Phase 8)
+`campaigns` (lead attribution via `leads.campaign_id`), `traffic_snapshots`, `seo_keywords`, `keyword_rankings`,
+`backlinks`, `seo_audits`, `content_items` (pipeline `content`).
+
+## Support (Phase 9)
+`sla_policies`, `sla_targets` (per priority), `maintenance_plans` (hours, fee → recurring billing), `tickets`
+(SLA due times, breach flag, links to task/bug; `time_entries.ticket_id` drives plan usage).
+
+## Knowledge (Phase 10)
+`kb_articles` (→ current published version), `kb_article_versions`, `kb_article_audiences` (roles/departments),
+`kb_reading_assignments` (per version & user, due date), `kb_acknowledgements` (per version & user).

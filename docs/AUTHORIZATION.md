@@ -39,6 +39,20 @@ user ──< user_roles >── role ──< role_permissions (permission, scope
 - Users cannot change their own roles, nor the permissions of a role they hold.
 - Every permission and role change is written to the audit log with before/after values.
 
+## Self-service (granted to every employee via the base role)
+Own employee record (incl. own private fields and emergency contacts), own tasks/time/attendance/leave (create and
+cancel), own expenses, own payslips and salary history, own equipment, licences and access records, own performance
+review (self-assessment only), interviews assigned to them, goals and the knowledge base.
+
+## Record-aware field restrictions
+A field permission held at `own`/`team` scope only applies to rows inside that scope. Example: a PM with
+`project_finance.view@own` sees budget and cost only on projects they manage, even though they can view all projects.
+
+## Separation of duties
+Approvals cannot be decided by the requester; expenses cannot be approved by their submitter; payroll cannot be
+approved by its preparer; PR authors cannot approve their own PR; only QA can verify/close bugs; only HR can mark a
+candidate as hired; publishing knowledge needs `kb.publish`.
+
 ## Sensitive data classes
 
 | Data | Permission | Default holders |

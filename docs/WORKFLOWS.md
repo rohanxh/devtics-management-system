@@ -55,5 +55,65 @@ See Admin › Automation for the live list. Module rules are documented with eac
 | `feedback.flag_overdue` | 60 min | Client review requests past due become *overdue* (client delay + health signal). |
 | `clients.recompute_health` | 30 min | Recomputes client health from signals (project delays, overdue feedback, low satisfaction; finance and support add theirs). Changes emit `clients.health_changed` → account manager + CEO alert. |
 
+## Engineering & QA
+- **Project enters QA** → status *In QA*, QA cycle task, QA + PM notified.
+- **QA run** (`POST /api/qa/runs`) materialises template checks as project test cases; results are recorded per case.
+  *Fail* raises a linked bug in one step. *Complete* requires every case recorded. **Sign-off** requires no failed/blocked
+  cases and no open critical/high bugs → project *Ready for launch*, stage *Client Feedback*, `qa_approved_at` set;
+  rejection sends the project back to development and notifies PM + tech lead.
+- **Launch** (`POST /api/projects/:id/launch`) and moving the stage to Launch/Maintenance require QA sign-off (internal projects exempt).
+- **Bugs**: developers move bugs to *fixed*; only QA (`qa.edit`) can move to retest/verified/reopened/closed; reopening counts a retest.
+- **Production deployments** open a CTO approval; non-production deployments are approved immediately.
+- **Code review**: authors cannot approve their own PR; reviewers are notified on assignment, authors on decision.
+- **Technical reviews** (architecture, integration, infrastructure, security) → CTO approval with a decision record.
+
+## Finance
+- Invoice status is owned by money: payments move it to partially paid / paid; the hourly job marks overdue ones
+  (→ Finance + account manager alert, client-health penalty). Only drafts can be edited or deleted; void needs a reason
+  and no payments.
+- Completed billable milestones notify Finance; `POST /api/finance/invoices/from-milestone/:id` drafts the invoice.
+- Recurring schedules draft invoices on their run date (missed periods are caught up).
+- Expenses: submitter ≠ approver; approved & unpaid = payables. Payroll: prepared from salary history + approved
+  adjustments; approval must come from someone other than the preparer; adjustments lock once applied.
+
+## HR
+- **Leave**: working days exclude weekends (per schedule) and holidays; overlap and balance are checked; the request goes
+  to the manager (or HR) as an approval; approval updates the balance and marks attendance *on leave*; cancelling restores both.
+- **Attendance**: clock in/out computes late/early/overtime against the work schedule; the job marks absences for the
+  previous working day; corrections require HR/manager scope.
+- **Reviews**: the employee may only write their self-assessment; completion needs a rating; promotion / salary-review
+  recommendations notify HR (and Finance).
+- **Hiring**: moving an application to *Hired* (HR only) creates the employee (probation), records the hire, fills the
+  opening and notifies HR, IT and Admin; `employee.hired` asks IT to prepare access and equipment.
+- **Offboarding**: an employee becoming terminated/resigned sends IT + HR the list of access to revoke and devices to recover;
+  the IT dashboard keeps flagging leftovers.
+
+## Support
+- Ticket SLA due times come from the plan's SLA policy (or the default) by priority; leaving *new* records the first response;
+  the 15-minute job flags breaches (Support, assignee, PM notified).
+- *Send to development* / *Log as bug* creates linked work in the project; task/bug progress moves the ticket to *In QA*
+  and *Resolved* automatically.
+- Maintenance plans create their own recurring billing; time logged on their tickets is "used hours"; 80 % / 100 % usage alerts.
+
+## Knowledge base
+- Editing a published article creates a new draft version; readers keep seeing the published one.
+- Publishing a required-reading version assigns it to the audience (roles/departments, or everyone) with a due date and
+  notifies them; each version needs its own acknowledgement; overdue reading and review dates trigger reminders.
+
+## Additional jobs
+| Job | Every | Effect |
+|---|---|---|
+| `invoices.mark_overdue` | 60 min | Recalculate past-due invoices → overdue. |
+| `billing.generate_recurring` | 60 min | Draft invoices from recurring schedules. |
+| `attendance.mark_absences` | 120 min | Absent records for yesterday's working day without clock-in. |
+| `hr.reminders` | 6 h | Probation ending, reviews due, certifications and employee documents expiring. |
+| `kpis.measure` | 6 h | Record automatic KPI values; refresh goals linked to metrics. |
+| `it.renewals` | 6 h | Infra expiring/expired status + alerts, subscription renewals, warranty ends. |
+| `seo.ranking_drops` | 12 h | Alert on keywords dropping 5+ positions. |
+| `support.sla` | 15 min | SLA breach detection. |
+| `support.plan_usage` | 6 h | Plan hour usage alerts. |
+| `kb.reminders` | 12 h | Overdue required reading; articles due for review. |
+| `notifications.email_digest` | 10 min | Email digest of important notifications left unread (SMTP or log). |
+
 ## Client health
 Score starts at 100; each signal subtracts a penalty (delayed project −20, at-risk project −10, overdue feedback −10 each (max −20), average satisfaction < 3 over 180 days −20, …). < 60 → **At risk**, < 80 → **Attention required**, otherwise **Active** (has active work), **Stable** (recent work or new client) or **Inactive**. Signal providers are pluggable (`HEALTH_SIGNALS`).

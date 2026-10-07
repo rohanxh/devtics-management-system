@@ -71,4 +71,49 @@ Module-specific endpoints are documented in the sections below as modules are ad
 | POST | `/api/onboarding/:id/pm-review` | `{pmId, techLeadId?, memberIds?, dueDate?, budgetHours?, pmNotes?}` |
 | POST | `/api/onboarding/:id/complete` | start delivery |
 | GET | `/api/my-work` | the caller's open tasks grouped (overdue/today/upcoming) + projects |
-| GET | `/api/dashboard/:key` | role dashboards: `pm`, `bd`, `developer` (more per module) |
+| GET | `/api/dashboard/:key` | role dashboards: `ceo`, `cto`, `pm`, `developer`, `qa`, `finance`, `bd`, `hr`, `it`, `marketing`, `support` (each permission-gated) |
+
+## Engineering & QA
+| Method | Path | |
+|---|---|---|
+| POST | `/api/qa/runs` | `{projectId, name, templateIds[], includeProjectCases, environmentId?, assigneeId?}` |
+| GET | `/api/qa/runs/:id/results` | results with test-case details and linked bugs |
+| POST | `/api/qa/results/:id/fail` | `{title, severity, actualResult?, stepsToReproduce?, assigneeId?}` → bug (201) |
+| POST | `/api/qa/runs/:id/complete`, `/approve`, `/reject` | run lifecycle; approve = QA sign-off |
+| POST | `/api/projects/:id/launch` | requires QA sign-off |
+
+## Finance
+| POST | `/api/finance/invoices/from-milestone/:id` | draft invoice for a billable milestone |
+|---|---|---|
+| POST | `/api/finance/payroll-runs` | `{periodStart, periodEnd}` → draft run with payslips |
+| POST | `/api/finance/payroll-runs/:id/approve`, `/paid` | approval (not the preparer) / mark paid |
+| GET | `/api/finance/profitability` | project profitability (scoped by `project_finance.view`) |
+| GET | `/api/finance/pnl?from=&to=` | P&L, monthly series, receivables, MRR |
+
+## HR
+| GET | `/api/attendance/me` | today, month summary, leave balances |
+|---|---|---|
+| POST | `/api/attendance/clock-in` (`{remote?}`), `/api/attendance/clock-out` | own attendance |
+| GET | `/api/attendance/day?date=` | team/all attendance for a date (scoped) |
+
+## Support
+| POST | `/api/support/tickets/:id/escalate` | `{kind: 'task'|'bug', assigneeId?, severity?}` |
+|---|---|---|
+| GET | `/api/support/plans/usage` | hours used/remaining this month per active plan |
+
+## Knowledge base
+| GET | `/api/kb?q=&category=` | articles visible to the caller (+ read/ack status) |
+|---|---|---|
+| GET | `/api/kb/my-reading` | pending required reading |
+| GET | `/api/kb/:idOrSlug?draft=1&version=` | article + version body + versions + permissions |
+| POST | `/api/kb` | create (draft v1) |
+| PUT | `/api/kb/:id/draft` | save working draft (new version after publish) |
+| PUT | `/api/kb/:id/audience` | `{roleKeys[], departmentIds[]}` |
+| POST | `/api/kb/:id/publish` | publish latest draft; assigns required reading |
+| POST | `/api/kb/:id/acknowledge` | acknowledge current version |
+| GET | `/api/kb/:id/compliance` | acknowledgement status per assigned user |
+
+## Reports
+| GET | `/api/reports` | reports available to the caller |
+|---|---|---|
+| GET | `/api/reports/:key?from=&to=` | `financial`, `profitability`, `sales`, `projects`, `utilization`, `hr`, `technical`, `support`, `departments` |

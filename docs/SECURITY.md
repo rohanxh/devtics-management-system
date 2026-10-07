@@ -47,11 +47,21 @@ records (IDOR); anti-escalation rules for permission grants; self-approval block
 - Application events: LOGIN, LOGIN_FAILED, LOGOUT, PASSWORD_CHANGED, PASSWORD_RESET, USER_CREATED,
   ROLES_CHANGED, PERMISSIONS_CHANGED.
 
+## Sensitive data handling (selected controls)
+- Field permissions held at `own`/`team` scope apply only to rows in that scope, for both reads and writes
+  (e.g. employees can see/edit their own private HR fields; managers cannot see their reports').
+- Private employee documents (categories `contract`, `id`, `medical`, `payroll`, `private`) are hidden from everyone except
+  HR-sensitive holders and the employee — in listings and downloads.
+- Payroll totals are hidden from employees who can only see their own payslip; compensation is own-record only for staff.
+- Expected salaries of candidates are hidden from hiring managers/interviewers.
+
 ## Secrets & credentials
 - No secrets in the repository; configuration via environment variables (`.env` is gitignored; see `.env.example`).
 - Demo seed passwords are random unless `SEED_PASSWORD` is provided, and are written only to the gitignored `.data/`.
-- **Raw passwords for company systems must never be stored in DMS.** Infrastructure/access records hold a
-  *reference* to the password-manager entry (vault reference), not the secret itself.
+- **Raw passwords for company systems must never be stored in DMS.** Infrastructure, subscription and access records hold a
+  *reference* to the password-manager entry (`op://…`, `bw://…`, `keeper://…`, `https://` vault link), enforced by validation.
+  Notes/identifier fields on IT, repository and environment records reject values that look like credentials (private keys,
+  AWS/GitHub/Stripe/Slack/Google keys, `password: …`, `token = …`).
 
 ## Operational recommendations
 - Terminate TLS at a reverse proxy; set `NODE_ENV=production` (enables `Secure` cookies and `trustProxy`).

@@ -29,10 +29,19 @@ npm start                # migrations + system seed also run at startup (idempot
 The API serves the built SPA and falls back to `index.html` for client routes.
 
 ## First administrator
-There is no default account in production. Create the first admin with a one-off SQL/script session, e.g.
-run `npm run db:seed` **only in a non-production database** for demo data, or insert a user and assign the
-`admin` (and `ceo`) role, then sign in and use Admin › Users for everyone else. A dedicated
-`create-admin` CLI is on the roadmap (see PROJECT_STATUS.md).
+There is no default account. On the server run:
+```bash
+npm run create-admin -- --email you@company.com --name "Your Name" --roles admin,ceo
+```
+It applies migrations and the system seed, creates the user with a temporary password (printed once) that must be
+changed at first sign-in. Because role grants are protected against escalation, give the first administrator every
+role whose permissions they will need to delegate (e.g. `admin,ceo,hr,finance`). Everyone else is invited from
+Admin › Users. Never run `npm run db:seed` against production (it refuses when `NODE_ENV=production`).
+
+## Email
+Set `SMTP_URL` (e.g. `smtps://user:pass@smtp.example.com:465`) and `MAIL_FROM` to send notification digests.
+Without `SMTP_URL`, digests are logged instead of sent. Only important kinds (approvals, escalations, alerts,
+deadlines, mentions, assignments) left unread for *Settings › email after (minutes)* are emailed, once each.
 
 ## Local development
 ```bash

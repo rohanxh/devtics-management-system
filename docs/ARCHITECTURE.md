@@ -111,6 +111,32 @@ lifecycle is configurable without code changes.
 | D10 | Users vs employees are separate | Login identity vs HR record; contractors/candidates can exist without logins and vice versa. |
 | D11 | Custom dev runner (`scripts/dev.mjs`) | `node --watch` kills the child process on the build machine (Windows). |
 
+## Modules
+| Area | Server | Web |
+|---|---|---|
+| Platform | `modules/admin.ts`, `collab.ts`, `platform.ts`, `core/*` | `pages/Admin.tsx`, `Inbox.tsx`, `components/*` |
+| CRM & sales | `resources/defs/crm.ts`, `modules/sales.ts` | `modules/sales.tsx` |
+| Delivery | `resources/defs/projects.ts`, `modules/delivery.ts`, `clients.ts` | `modules/delivery.tsx` |
+| Engineering & QA | `resources/defs/engineering.ts`, `modules/qa.ts` | `modules/engineering.tsx` |
+| Finance | `resources/defs/finance.ts`, `modules/finance.ts`, `costing.ts` | `modules/finance.tsx` |
+| HR & strategy | `resources/defs/hr.ts`, `modules/hr.ts`, `kpi.ts` | `modules/hr.tsx` |
+| IT | `resources/defs/it.ts`, `modules/it.ts`, `core/secrets.ts` | `modules/it.tsx` |
+| Marketing | `resources/defs/marketing.ts`, `modules/marketing.ts` | `modules/marketing.tsx` |
+| Support | `resources/defs/support.ts`, `modules/support.ts` | `modules/support.tsx` |
+| Knowledge | `resources/defs/kb.ts`, `modules/kb.ts` | `modules/kb.tsx`, `components/Markdown.tsx` |
+| Reporting | `modules/reports.ts` (shared metrics + dashboards), `modules/executive.ts` | `modules/executive.tsx` |
+
+Cross-module contracts are explicit and small: `HEALTH_SIGNALS` (modules add client-health penalties),
+`registerDashboard` / `registerDashboardExtra`, `registerAction`, `registerApprovalHandler`, `JOBS`, and on the web
+`registerPanel` / `registerActions` / `EXTRA_ROUTES` / `DASHBOARDS` / `HOME_WIDGETS`.
+
+## Integrations
+No integration is faked. Where external data is expected (Git hosting, analytics, Search Console, rankings) the data
+model accepts manual entry and records the `source` (`manual`, `ga4`, `search_console`, `import`) so a connector can
+populate the same tables later. Integration points to build next: GitHub webhooks → `pull_requests`/`deployments`;
+GA4/Search Console → `traffic_snapshots`/`keyword_rankings`; email inbox → `tickets`; accounting export of
+`invoices`/`payments`/`expenses`; password-manager lookups by `vault_reference`.
+
 ## Extending
 
 - **New entity**: add a table in `src/server/db/schema/*.ts`, run `npm run db:generate -- --name <name>`,
