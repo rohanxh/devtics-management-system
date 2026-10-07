@@ -12,6 +12,7 @@ import { SimpleBars } from '../components/charts';
 import { useToast } from '../components/toast';
 import { DASHBOARDS, greeting } from '../pages/Home';
 import { ApprovalsList } from '../pages/Inbox';
+import { EngineeringSection } from './engineering';
 
 // ───────────── Time logging ─────────────
 
@@ -267,6 +268,7 @@ function DeveloperDashboard() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="space-y-4 xl:col-span-2">
           <MyWorkSections data={d} />
+          <EngineeringSection data={d.engineering} />
         </div>
         <div className="space-y-4">
           <Card title="My projects">
@@ -286,6 +288,7 @@ function DeveloperDashboard() {
                 <dt className="text-slate-500">Estimated vs actual</dt><dd className="text-right">{d.performance.estimatedHours}h / {d.performance.actualHours}h</dd>
                 <dt className="text-slate-500">Rework</dt><dd className="text-right">{d.performance.reworkPct}%</dd>
                 <dt className="text-slate-500">QA rejection rate</dt><dd className="text-right">{d.performance.qaRejectionRatePct}%</dd>
+                {d.engineering && <><dt className="text-slate-500">Bugs introduced</dt><dd className="text-right">{d.engineering.bugsIntroduced}</dd></>}
               </dl>
             </Card>
           )}

@@ -1,6 +1,6 @@
 import { and, eq, isNotNull, isNull, ne, or, sql } from 'drizzle-orm';
 import {
-  changeRequests, clientFeedback, meetingNotes, milestones, projectMembers, projectOnboardings, projects,
+  changeRequests, clientFeedback, pipelineStages, meetingNotes, milestones, projectMembers, projectOnboardings, projects,
   projectUpdates, risks, taskChecklistItems, taskDependencies, tasks, timeEntries,
 } from '../../db/schema/index.ts';
 import { conflict, forbidden, invalid } from '../../core/errors.ts';
@@ -55,13 +55,20 @@ defineResource({
     { resource: 'change_requests', field: 'projectId' }, { resource: 'project_updates', field: 'projectId', label: 'Updates' },
     { resource: 'meeting_notes', field: 'projectId' }, { resource: 'client_feedback', field: 'projectId', label: 'Client feedback' },
     { resource: 'communications', field: 'projectId' }, { resource: 'time_entries', field: 'projectId' },
+    { resource: 'bugs', field: 'projectId' }, { resource: 'qa_runs', field: 'projectId' }, { resource: 'test_cases', field: 'projectId' },
+    { resource: 'repositories', field: 'projectId' }, { resource: 'environments', field: 'projectId' }, { resource: 'deployments', field: 'projectId' },
+    { resource: 'project_technologies', field: 'projectId', label: 'Tech stack' }, { resource: 'tech_reviews', field: 'projectId' },
   ],
   hooks: {
     beforeCreate(c, d) {
       d.createdBy = c.actor.userId;
       if (!d.pmId && c.actor.roles.includes('pm')) d.pmId = c.actor.userId;
     },
-    beforeUpdate(_c, d, prev) {
+    async beforeUpdate(c, d, prev) {
+      if (d.stageId && d.stageId !== prev.stageId && !prev.qaApprovedAt && !prev.isInternal) {
+        const [st] = await c.tx.select({ key: pipelineStages.key }).from(pipelineStages).where(eq(pipelineStages.id, d.stageId));
+        if (st?.key === 'launch' || st?.key === 'maintenance') throw conflict('QA sign-off is required before launch');
+      }
       if (d.status === 'completed' && prev.status !== 'completed' && !d.actualEndDate && !prev.actualEndDate) d.actualEndDate = today();
       if (d.dueDate && d.startDate && d.dueDate < d.startDate) throw invalid('Validation failed', { dueDate: 'Due date is before start date' });
     },

@@ -3,6 +3,7 @@ import type { DB } from './client.ts';
 import { automationRules, pipelineStages, rolePermissions, roles, settings } from './schema/index.ts';
 import { ROLE_SEEDS, expandGrants } from '../rbac/defaults.ts';
 import { withActor } from '../core/context.ts';
+import { seedQaTemplates } from './seed-qa-templates.ts';
 
 /**
  * Bump when ROLE_SEEDS gains permissions. Grants are re-applied additively (never removed),
@@ -109,5 +110,7 @@ export async function seedSystem(db: DB) {
         })));
       }
     }
+
+    await seedQaTemplates(tx);
   });
 }

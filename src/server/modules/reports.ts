@@ -30,6 +30,9 @@ export function scopeOr(ctx: Ctx, key: string): SQL | undefined {
 export interface DashboardDef { key: string; roles?: string[]; perm?: string; build: (ctx: Ctx, q: Record<string, string | undefined>) => Promise<unknown> }
 export const DASHBOARDS = new Map<string, DashboardDef>();
 export const registerDashboard = (d: DashboardDef) => DASHBOARDS.set(d.key, d);
+/** Other modules can contribute sections to a dashboard without coupling to it. */
+const EXTRAS = new Map<string, ((ctx: Ctx) => Promise<Record<string, unknown>>)[]>();
+export const registerDashboardExtra = (key: string, fn: (ctx: Ctx) => Promise<Record<string, unknown>>) => EXTRAS.set(key, [...(EXTRAS.get(key) ?? []), fn]);
 
 // ───────────── Delivery metrics ─────────────
 
@@ -258,7 +261,9 @@ export async function reportRoutes(app: FastifyInstance) {
     if (!d) throw forbidden('Unknown dashboard');
     if (d.perm && !can(ctx.actor, d.perm)) throw forbidden();
     if (d.roles && !d.roles.some((r) => ctx.actor.roles.includes(r))) throw forbidden();
-    return d.build(ctx, req.query);
+    const out = (await d.build(ctx, req.query)) as Record<string, unknown>;
+    for (const fn of EXTRAS.get(d.key) ?? []) Object.assign(out, await fn(ctx));
+    return out;
   });
 }
 

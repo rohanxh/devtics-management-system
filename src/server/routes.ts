@@ -12,6 +12,7 @@ import { salesRoutes } from './modules/sales.ts';
 import { deliveryRoutes } from './modules/delivery.ts';
 import './modules/clients.ts';
 import { reportRoutes } from './modules/reports.ts';
+import { qaRoutes } from './modules/qa.ts';
 
 export async function registerRoutes(app: FastifyInstance) {
   await authRoutes(app);
@@ -22,4 +23,5 @@ export async function registerRoutes(app: FastifyInstance) {
   await salesRoutes(app);
   await deliveryRoutes(app);
   await reportRoutes(app);
+  await qaRoutes(app);
 }

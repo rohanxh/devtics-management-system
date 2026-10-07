@@ -77,3 +77,47 @@ RULE_SEEDS.push(
     actions: [{ action: 'notify_record_users', params: { fields: ['createdBy'], title: 'Change request {to}: {title}' } }],
   },
 );
+
+// ── Engineering & QA ──
+RULE_SEEDS.push(
+  assign('bugs', 'bug'),
+  assign('qa_runs', 'QA run'),
+  assign('tech_debt', 'tech debt item'),
+  {
+    key: 'pull_requests.review_requested', name: 'Code review requested', description: 'Tell the reviewer a pull request needs review.',
+    eventType: 'pull_requests.assigned', actions: [{ action: 'notify_assignee', params: { title: 'Code review requested: {title}' } }],
+  },
+  {
+    key: 'pull_requests.reviewed', name: 'Code review completed', description: 'Tell the author when a review approves or requests changes.',
+    eventType: 'pull_requests.status_changed', conditions: { to: ['approved', 'changes_requested'] },
+    actions: [{ action: 'notify_record_users', params: { fields: ['authorId'], title: 'Review {to}: {title}' } }],
+  },
+  {
+    key: 'bugs.critical.alert', name: 'Critical bug reported', description: 'Alert the CTO and the project manager about critical bugs.',
+    eventType: 'bugs.created', conditions: { severity: 'critical' },
+    actions: [{ action: 'notify_project_team', params: { who: ['pm', 'tech_lead'], roles: ['cto'], kind: 'alert', title: 'Critical bug on {code}: {title}' } }],
+  },
+  {
+    key: 'bugs.fixed.retest', name: 'Bug fixed → retest', description: 'Tell the reporter (QA) a bug is ready to retest.',
+    eventType: 'bugs.status_changed', conditions: { to: 'fixed' },
+    actions: [{ action: 'notify_record_users', params: { fields: ['reportedById'], title: 'Fixed, please retest: {number} {title}' } }],
+  },
+  {
+    key: 'bugs.reopened', name: 'Bug reopened', description: 'Tell the assignee when QA reopens a bug.',
+    eventType: 'bugs.status_changed', conditions: { to: 'reopened' },
+    actions: [{ action: 'notify_record_users', params: { fields: ['assigneeId'], title: 'Reopened by QA: {number} {title}' } }],
+  },
+  {
+    key: 'deployments.failed', name: 'Deployment failed', description: 'Alert the CTO and project manager when a deployment fails.',
+    eventType: 'deployments.status_changed', conditions: { to: ['failed', 'rolled_back'] },
+    actions: [{ action: 'notify_project_team', params: { who: ['pm', 'tech_lead'], roles: ['cto'], kind: 'alert', title: 'Deployment {to} on {code}: {title}' } }],
+  },
+  {
+    key: 'qa.approved.launch', name: 'QA approved → launch enabled', description: 'Tell the PM and tech lead the project passed QA and can launch.',
+    eventType: 'qa.approved', actions: [{ action: 'notify_project_team', params: { who: ['pm', 'tech_lead'], title: 'QA signed off {code} — ready for launch' } }],
+  },
+  {
+    key: 'project.launched', name: 'Project launched', description: 'Announce launches to leadership and support.',
+    eventType: 'project.launched', actions: [{ action: 'notify_roles', params: { roles: ['ceo', 'support'], title: 'Launched: {title}' } }],
+  },
+);
