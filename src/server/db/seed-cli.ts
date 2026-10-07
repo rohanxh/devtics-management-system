@@ -7,6 +7,7 @@ import { bootstrap } from '../bootstrap.ts';
 import { users } from './schema/index.ts';
 import { seedDemo } from './seed-demo.ts';
 import './seed-demo-modules.ts';
+import { JOBS } from '../jobs.ts';
 
 const cfg = loadConfig();
 if (cfg.NODE_ENV === 'production') {
@@ -25,6 +26,9 @@ if (Number(n) > 0) {
 } else {
   const password = process.env.SEED_PASSWORD || randomBytes(12).toString('base64url');
   await seedDemo(database.db, password);
+  await events.processPending();
+  // Run periodic jobs once so derived data (health, delays, reminders) is current.
+  for (const job of JOBS) await job.run(database.db);
   await events.processPending();
   const file = path.resolve('.data/seed-credentials.txt');
   fs.mkdirSync(path.dirname(file), { recursive: true });

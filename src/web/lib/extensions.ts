@@ -23,3 +23,6 @@ export function registerActions(resource: string, comp: DetailActions) {
 }
 export const panelsFor = (resource: string) => panels.get(resource) ?? [];
 export const actionsFor = (resource: string) => actions.get(resource);
+
+/** Module-specific pages (registered by src/web/modules/*). */
+export const EXTRA_ROUTES: { path: string; component: ComponentType }[] = [];

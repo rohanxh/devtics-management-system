@@ -13,7 +13,8 @@ import { HomePage } from './pages/Home';
 import { RecordPage, ResourceListPage } from './pages/ResourcePages';
 import { ApprovalsPage, NotificationsPage } from './pages/Inbox';
 import { AuditPage, AutomationAdminPage, RolesAdminPage, SettingsPage, UsersAdminPage } from './pages/Admin';
-import { EXTRA_ROUTES } from './modules';
+import { EXTRA_ROUTES } from './lib/extensions';
+import './modules/index';
 
 const queryClient = new QueryClient({
   defaultOptions: {

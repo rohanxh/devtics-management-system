@@ -20,14 +20,14 @@ export async function setup() {
   let n = 0;
 
   async function createUser(roleKeys: string[], opts: { name?: string; employee?: boolean; mustChangePassword?: boolean } = {}) {
-    n++;
-    const email = `user${n}-${roleKeys.join('-') || 'base'}@test.local`;
-    const [u] = await db.insert(users).values({ email, name: opts.name ?? `User ${n}`, passwordHash: hash, mustChangePassword: !!opts.mustChangePassword }).returning();
+    const i = ++n;
+    const email = `user${i}-${roleKeys.join('-') || 'base'}@test.local`;
+    const [u] = await db.insert(users).values({ email, name: opts.name ?? `User ${i}`, passwordHash: hash, mustChangePassword: !!opts.mustChangePassword }).returning();
     const rs = await db.select().from(roles).where(inArray(roles.key, ['employee', ...roleKeys]));
     await db.insert(userRoles).values(rs.map((r) => ({ userId: u.id, roleId: r.id })));
     let employeeId: string | undefined;
     if (opts.employee !== false) {
-      const [e] = await db.insert(employees).values({ userId: u.id, employeeCode: `E${n}`, firstName: 'Test', lastName: `User${n}`, joinDate: '2024-01-01' }).returning();
+      const [e] = await db.insert(employees).values({ userId: u.id, employeeCode: `E${i}`, firstName: 'Test', lastName: `User${i}`, joinDate: '2024-01-01' }).returning();
       employeeId = e.id;
     }
     return { id: u.id, email, employeeId };

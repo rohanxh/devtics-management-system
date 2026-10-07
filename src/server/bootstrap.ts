@@ -1,6 +1,8 @@
 import './resources/defs/index.ts';
 import './core/actions.ts';
 import './modules/rules.ts';
+import './modules/delivery.ts';
+import './modules/clients.ts';
 import type { Config } from './config.ts';
 import { createDatabase } from './db/client.ts';
 import { runMigrations } from './db/migrate.ts';

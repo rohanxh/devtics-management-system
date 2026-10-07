@@ -61,3 +61,14 @@ The list of resources and their fields is discoverable at runtime from `/api/met
 | GET/PUT | `/api/admin/settings` | |
 
 Module-specific endpoints are documented in the sections below as modules are added.
+
+## Sales & delivery
+| Method | Path | |
+|---|---|---|
+| POST | `/api/sales/leads/:id/convert` | `{opportunityName?, value?, expectedCloseDate?}` → opportunity (201) |
+| GET | `/api/projects/:projectId/onboarding` | onboarding state + allowed actions |
+| POST | `/api/onboarding/:id/handover` | `{handoverNotes}` |
+| POST | `/api/onboarding/:id/pm-review` | `{pmId, techLeadId?, memberIds?, dueDate?, budgetHours?, pmNotes?}` |
+| POST | `/api/onboarding/:id/complete` | start delivery |
+| GET | `/api/my-work` | the caller's open tasks grouped (overdue/today/upcoming) + projects |
+| GET | `/api/dashboard/:key` | role dashboards: `pm`, `bd`, `developer` (more per module) |

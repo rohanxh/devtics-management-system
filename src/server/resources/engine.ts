@@ -50,7 +50,7 @@ const fieldWritable = (f: FieldDef, actor: Actor) => {
 };
 
 function notDeleted(def: ResourceDef): SQL | undefined {
-  return def.softDelete ? isNull(col(def, def.softDelete)) : undefined;
+  return and(def.softDelete ? isNull(col(def, def.softDelete)) : undefined, def.baseWhere);
 }
 
 /** Can the actor see this record? Used by collaboration endpoints, file downloads and notifications. */
@@ -178,6 +178,18 @@ export async function getOne(ctx: Ctx, key: string, id: string, action: Resource
 export async function serialize(db: DB, def: ResourceDef, actor: Actor, rows: Row[]): Promise<Row[]> {
   if (!rows.length) return [];
   const hidden = Object.entries(def.fields).filter(([, f]) => !fieldReadable(f, actor)).map(([k]) => k);
+  // Field permissions granted with a limited scope only apply to rows inside that scope.
+  const limited = Object.entries(def.fields).filter(([k, f]) => f.readPermission && !hidden.includes(k) && actor.perms.get(f.readPermission) !== 'all');
+  const inScope = new Map<string, Set<string>>();
+  const scopeKey = (k: string, f: FieldDef) => f.readScope ? `field:${k}` : actor.perms.get(f.readPermission!)!;
+  for (const [k, f] of limited) {
+    const scope = actor.perms.get(f.readPermission!)!;
+    const key = scopeKey(k, f);
+    if (inScope.has(key)) continue;
+    const rule = f.readScope ?? (scope === 'team' ? (def.scopes?.team ?? def.scopes?.own) : def.scopes?.own);
+    const ids = rule ? (await db.select({ id: col(def, 'id') }).from(def.table).where(and(inArray(col(def, 'id'), rows.map((r) => r.id)), rule(actor)))).map((r: any) => r.id as string) : [];
+    inScope.set(key, new Set(ids));
+  }
   const refFields = Object.entries(def.fields).filter(([k, f]) => (f.type === 'ref' || f.type === 'stage') && !hidden.includes(k));
 
   const labelMaps = new Map<string, Map<string, string>>();
@@ -207,6 +219,7 @@ export async function serialize(db: DB, def: ResourceDef, actor: Actor, rows: Ro
   return rows.map((r) => {
     const out: Row = { ...r };
     for (const k of hidden) delete out[k];
+    for (const [k, f] of limited) if (!inScope.get(scopeKey(k, f))?.has(r.id)) delete out[k];
     const labels: Record<string, string> = {};
     for (const [k, f] of refFields) {
       if (r[k]) labels[k] = labelMaps.get(f.type === 'stage' ? '__stage' : f.ref!)?.get(r[k]) ?? '—';
@@ -346,7 +359,8 @@ export async function update(ctx: Ctx, key: string, id: string, body: unknown): 
 export async function afterWrite(tx: DB, def: ResourceDef, actor: Actor | null, row: Row, prev: Row | undefined) {
   const actorId = actor?.userId ?? null;
   const title = String((def.formatTitle ? def.formatTitle(row) : row[def.titleField]) ?? '');
-  const base = { id: row.id, title };
+  const base: Record<string, unknown> = { id: row.id, title };
+  for (const k of def.eventFields ?? []) base[k] = row[k];
   if (!prev) {
     await emit(tx, { type: `${def.key}.created`, entityType: def.key, entityId: row.id, actorUserId: actorId, payload: base });
     await logActivity(tx, def, row.id, actorId, 'created', `created this ${def.label.toLowerCase()}`);
@@ -391,6 +405,7 @@ export async function remove(ctx: Ctx, key: string, id: string) {
         throw e;
       }
     }
+    await def.hooks?.afterDelete?.({ tx, actor: ctx.actor, requestId: ctx.requestId }, row);
     await emit(tx, { type: `${def.key}.deleted`, entityType: def.key, entityId: id, actorUserId: ctx.actor.userId, payload: { id, title: row[def.titleField] } });
   });
 }

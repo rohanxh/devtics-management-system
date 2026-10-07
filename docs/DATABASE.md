@@ -34,3 +34,34 @@ relationship exists, indexes on foreign keys used for filtering.
   (`audit_logs`, `domain_events`, `notifications`, `sessions`, `activities`, `saved_views`).
 
 Module tables are documented in their sections as they are added.
+
+## CRM & sales (Phase 2)
+| Table | Purpose |
+|---|---|
+| `companies` | **Canonical organisation** (prospect, client, former client, partner, vendor). Client fields: code, since, account manager, billing email, payment terms, health/score/reasons. The *Clients* module is a filtered view (`lifecycle in (client, former_client)`) of this same table. |
+| `contacts` | People at companies. |
+| `leads` | Top of funnel (new → contacted → qualified → converted / unqualified), source, owner, estimated value. |
+| `opportunities` | Deals on the configurable `sales` pipeline (Discovery → Requirement → Proposal → Negotiation → Won/Lost); value, probability, close date, won/lost timestamps, link to the onboarded project. |
+| `requirements` | MoSCoW requirements per opportunity. |
+| `communications` | Calls/emails/meetings/notes with explicit FKs to company, contact, lead, opportunity, project. |
+| `follow_ups` | Dated follow-up reminders. |
+| `quotes`, `quote_items` | Priced quotes; totals computed in SQL (`recalcTotals`). |
+| `proposals` | Proposal documents (versioned). |
+| `contracts` | MSAs, SOWs (type `sow`, optional parent MSA), NDAs, maintenance agreements. |
+| `sales_targets`, `commissions` | Targets per person/team & period; commission per deal. |
+
+## Delivery (Phase 3)
+| Table | Purpose |
+|---|---|
+| `projects` | Lifecycle `stage_id` (pipeline `project`: Scope → Design → Development → QA → Client Feedback → Launch → Maintenance → Closed) and delivery `status` (On track, At risk, Delayed, Awaiting client/design/development, In QA, Ready for launch…). Links client, deal, contract; budget (field-restricted). |
+| `project_members` | Resources: who works on a project, role, allocation. |
+| `milestones` | Dated, optionally billable milestones. |
+| `tasks` | Tasks & subtasks (`parent_task_id`), assignee, estimate, rework flag, QA rejection count. |
+| `task_dependencies` | Finish-to-start dependencies (cycle-checked with a recursive CTE). |
+| `task_checklist_items` | Checklists. |
+| `time_entries` | Time tracking with **cost snapshot** from the salary history at logging time. |
+| `risks` | Risks & issues; `project_id NULL` = company-level risk register. |
+| `change_requests` | Scope changes with impact (hours/cost/days) and approval. |
+| `meeting_notes`, `project_updates`, `client_feedback` | Communication, daily/weekly/client updates, escalations, client review requests & satisfaction. |
+| `project_onboardings` | Won-deal onboarding workflow state (BD → PM → CTO → Development). |
+| `employee_compensation` | Effective-dated salary history incl. hourly cost (finance-restricted). |

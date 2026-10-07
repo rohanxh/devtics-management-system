@@ -32,6 +32,8 @@ export interface FieldDef {
   readPermission?: string;
   /** Permission required to write this field (defaults to readPermission). */
   writePermission?: string;
+  /** Rows on which a limited-scope readPermission applies (defaults to the resource scope rules). */
+  readScope?: (a: Actor) => SQL;
   default?: unknown | ((actor: Actor) => unknown);
   min?: number;
   max?: number;
@@ -73,6 +75,8 @@ export interface ResourceDef {
   scopes?: { own?: (a: Actor) => SQL; team?: (a: Actor) => SQL };
   /** Any authenticated user may look up id + title (pickers, labels). */
   directory?: boolean;
+  /** Fixed filter: this resource is a view over a subset of the table (e.g. clients = companies with client lifecycle). */
+  baseWhere?: SQL;
   /** Soft-delete column name (timestamp). */
   softDelete?: string;
   defaultSort?: string;
@@ -81,6 +85,8 @@ export interface ResourceDef {
   /** User-reference fields that represent assignment (notifications, “mine” filter, assign permission). */
   assignees?: string[];
   numbering?: { field: string; key: string; prefix: string; pad?: number };
+  /** Row fields copied into every domain event payload (usable in automation conditions). */
+  eventFields?: string[];
   /** Related lists shown on the detail page. */
   children?: { resource: string; field: string; label?: string }[];
   /** Field to group the Kanban board by (enum or stage). */
@@ -93,6 +99,7 @@ export interface ResourceDef {
     beforeUpdate?(c: HookCtx, data: Record<string, any>, prev: Row): Promise<void> | void;
     afterUpdate?(c: HookCtx, row: Row, prev: Row): Promise<void> | void;
     beforeDelete?(c: HookCtx, row: Row): Promise<void> | void;
+    afterDelete?(c: HookCtx, row: Row): Promise<void> | void;
   };
 }
 
