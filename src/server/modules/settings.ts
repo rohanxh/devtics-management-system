@@ -11,6 +11,8 @@ export const SETTINGS_SCHEMA = z.object({
   /** Standard working hours per day, used for capacity and utilization. */
   workdayHours: z.number().min(1).max(24),
   utilizationTargetPct: z.number().min(1).max(100),
+  /** Overhead added to salary when deriving the loaded hourly cost (benefits, equipment, office). */
+  costOverheadPct: z.number().min(0).max(300),
   /** Notifications left unread this long are included in an email digest. */
   emailDigestMinutes: z.number().int().min(5).max(1440),
 });
@@ -25,6 +27,7 @@ export const DEFAULT_SETTINGS: Settings = {
   invoiceDueDays: 15,
   workdayHours: 8,
   utilizationTargetPct: 80,
+  costOverheadPct: 25,
   emailDigestMinutes: 30,
 };
 

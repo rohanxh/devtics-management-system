@@ -33,8 +33,8 @@ DEMO_SEEDERS.push({
 
     // Salary history so time entries carry real cost (fictional figures).
     const salaries: Record<string, number> = {
-      ayesha: 9000, bilal: 7500, sara: 4200, usman: 4000, hina: 4500, omar: 3600, ali: 4200, zainab: 3200, fahad: 1800,
-      maryam: 2800, hamza: 3000, nida: 2000, kamran: 3000, rabia: 3500, imran: 2400, danish: 2600, sana: 1900,
+      ayesha: 4500, bilal: 3800, sara: 1700, usman: 1800, hina: 2000, omar: 1500, ali: 1900, zainab: 1400, fahad: 800,
+      maryam: 1200, hamza: 1300, nida: 850, kamran: 1300, rabia: 1500, imran: 950, danish: 1050, sana: 800,
     };
     for (const [h, sal] of Object.entries(salaries)) {
       await tx.insert(s.employeeCompensation).values({

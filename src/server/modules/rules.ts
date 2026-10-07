@@ -121,3 +121,34 @@ RULE_SEEDS.push(
     eventType: 'project.launched', actions: [{ action: 'notify_roles', params: { roles: ['ceo', 'support'], title: 'Launched: {title}' } }],
   },
 );
+
+// ── Finance ──
+RULE_SEEDS.push(
+  {
+    key: 'invoices.overdue.alert', name: 'Invoice overdue', description: 'Notify Finance and the client account manager when an invoice becomes overdue (also lowers client health).',
+    eventType: 'invoices.status_changed', conditions: { to: 'overdue' },
+    actions: [{ action: 'notify_company_manager', params: { roles: ['finance'], title: 'Invoice overdue: {title} ({client})' } }],
+  },
+  {
+    key: 'invoices.paid.notify', name: 'Invoice paid', description: 'Tell the account manager when a client pays in full.',
+    eventType: 'invoices.status_changed', conditions: { to: 'paid' },
+    actions: [{ action: 'notify_company_manager', params: { kind: 'status', title: 'Paid in full: {title} ({client})' } }],
+  },
+  {
+    key: 'milestones.completed.billing', name: 'Billable milestone completed', description: 'Ask Finance to invoice completed billable milestones.',
+    eventType: 'milestones.status_changed', conditions: { to: 'completed' }, actions: [{ action: 'finance.milestone_billable' }],
+  },
+  {
+    key: 'expenses.submitted.review', name: 'Expense submitted', description: 'Ask Finance to review new expenses.',
+    eventType: 'expenses.created', actions: [{ action: 'notify_roles', params: { roles: ['finance'], kind: 'approval_request', title: 'Expense to review: {title}' } }],
+  },
+  {
+    key: 'expenses.decided.notify', name: 'Expense decided', description: 'Tell the submitter when an expense is approved, rejected or paid.',
+    eventType: 'expenses.status_changed', conditions: { to: ['approved', 'rejected', 'paid'] },
+    actions: [{ action: 'notify_record_users', params: { fields: ['submittedById'], title: 'Expense {to}: {title}' } }],
+  },
+  {
+    key: 'payroll_runs.created.review', name: 'Payroll ready for approval', description: 'Ask payroll approvers (CEO / Finance) to review a new payroll run.',
+    eventType: 'payroll_runs.created', actions: [{ action: 'notify_roles', params: { roles: ['ceo', 'finance'], kind: 'approval_request', title: 'Payroll {title} ready for approval' } }],
+  },
+);
