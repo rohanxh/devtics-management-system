@@ -9,3 +9,4 @@ import './support';
 import './kb';
 import './executive';
 import './admin-home';
+import './tokens';

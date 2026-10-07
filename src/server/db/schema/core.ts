@@ -306,3 +306,16 @@ export const counters = pgTable('counters', {
   key: text().primaryKey(),
   value: integer().notNull().default(0),
 });
+
+/** Personal API tokens for integrations (Bearer auth). Only a SHA-256 hash is stored; the token is shown once. */
+export const apiTokens = pgTable('api_tokens', {
+  id: id(),
+  userId: uuid().notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: text().notNull(),
+  tokenHash: text().notNull().unique(),
+  prefix: text().notNull(),
+  expiresAt: tstz().notNull(),
+  lastUsedAt: tstz(),
+  revokedAt: tstz(),
+  createdAt: tstz().defaultNow().notNull(),
+}, (t) => [index('api_tokens_user_idx').on(t.userId)]);

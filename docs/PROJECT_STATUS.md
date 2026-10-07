@@ -24,9 +24,9 @@ The system is in a **hardening / refinement** phase: see "Next recommended steps
 | 9 Support | Tickets with SLA policies/targets, breach job, escalation to tasks/bugs with automatic status sync, maintenance plans (hours usage, auto recurring billing), support dashboard. |
 | 10 Knowledge | Versioned articles, required reading by audience, per-version acknowledgements, compliance view, review reminders, safe Markdown, KB UI. |
 | 11 Executive reporting | CEO dashboard; financial, profitability (project & client), sales, delivery, utilization, people, engineering, support and KPI reports; CSV export. |
-| Ops | `create-admin` CLI, demo seed (fictional), email digests (SMTP or log). |
+| Ops | `create-admin` CLI, demo seed (fictional), email digests (SMTP or log), personal API tokens for integrations, admin/security dashboard. |
 
-Tests: **83 integration tests** across 12 files (auth, RBAC/audit, sales→projects, QA/engineering, finance, HR, IT,
+Tests: **85 integration tests** across 13 files (auth, RBAC/audit, sales→projects, QA/engineering, finance, HR, IT,
 marketing, support, KB, notifications, reports) — all passing at the time of writing.
 
 ## In progress
@@ -36,7 +36,6 @@ marketing, support, KB, notifications, reports) — all passing at the time of w
 - **Git push**: blocked — see Blockers.
 - Integrations (documented interfaces only, no fake integrations): GitHub (PRs/deployments), GA4/Search Console (traffic,
   rankings), accounting export, Slack, calendar, password-manager API lookups, email-to-ticket.
-- API tokens for machine-to-machine access (sessions only today).
 - MFA (TOTP) for privileged roles; self-service password reset by email.
 - Client portal (clients viewing their tickets/invoices).
 - Business-hours SLA calendars; per-location time zones for attendance (currently server time).
@@ -64,6 +63,8 @@ marketing, support, KB, notifications, reports) — all passing at the time of w
 | 0008_marketing | campaigns, traffic, keywords, rankings, backlinks, SEO audits, content |
 | 0009_support | SLA policies/targets, maintenance plans, tickets |
 | 0010_knowledge | KB articles, versions, audiences, reading assignments, acknowledgements |
+| 0011_api_tokens | personal API tokens |
+| 0012_audit_ignore_token_usage | audit trigger ignores `last_used_at` |
 
 ## Security considerations
 See SECURITY.md. Open items: MFA, email-based reset, upload AV scanning, shared rate-limit store, DB role separation in production.
@@ -76,6 +77,6 @@ See SECURITY.md. Open items: MFA, email-based reset, upload AV scanning, shared 
 ## Next recommended steps
 1. Resolve the push blocker and set up CI (typecheck + tests + build).
 2. Deploy a staging instance on PostgreSQL; run `npm run create-admin`; walk through each role's dashboard.
-3. Add API tokens + the first real integration (GitHub webhooks for PRs/deployments).
+3. First real integration on top of API tokens (GitHub webhooks for PRs/deployments).
 4. MFA for CEO/CTO/Finance/HR/Admin.
 5. Code-split the web bundle per module; add Playwright smoke tests for the main journeys.

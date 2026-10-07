@@ -157,6 +157,7 @@ function UserMenu() {
         <div className="absolute right-0 z-50 mt-1 w-52 rounded-lg border border-slate-200 bg-white py-1 shadow-xl">
           {user.employeeId && <Link to={`/r/employees/${user.employeeId}`} className="block px-3 py-1.5 text-sm hover:bg-slate-50" onClick={() => setOpen(false)}>My profile</Link>}
           <Link to="/change-password" className="flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-slate-50" onClick={() => setOpen(false)}><KeyRound className="size-3.5" /> Change password</Link>
+          <Link to="/settings/tokens" className="block px-3 py-1.5 text-sm hover:bg-slate-50" onClick={() => setOpen(false)}>API tokens</Link>
           <button type="button" className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50" onClick={() => logout.mutate()}><LogOut className="size-3.5" /> Sign out</button>
         </div>
       )}

@@ -15,6 +15,7 @@ import { AppError, unauthorized } from './core/errors.ts';
 import type { Ctx } from './core/context.ts';
 import { loadActor } from './rbac/actor.ts';
 import { resolveSession, SESSION_COOKIE } from './auth/sessions.ts';
+import { resolveApiToken } from './auth/tokens.ts';
 import type { sessions } from './db/schema/index.ts';
 
 export interface AppDeps {
@@ -78,7 +79,9 @@ export async function buildApp(deps: AppDeps, opts: { logger?: boolean } = {}): 
     if (!req.url.startsWith('/api/')) return;
     const urlPath = req.url.split('?')[0];
 
-    if (MUTATING.has(req.method)) {
+    // API tokens (integrations) authenticate with a Bearer header and never use cookies, so CSRF does not apply.
+    const bearer = /^Bearer\s+(dms_[A-Za-z0-9_-]{20,100})$/.exec(req.headers.authorization ?? '')?.[1];
+    if (MUTATING.has(req.method) && !bearer) {
       // CSRF (OWASP): custom request header cannot be set cross-origin without CORS, which is not enabled.
       if (req.headers['x-requested-with'] !== 'dms') throw new AppError(403, 'csrf', 'Missing CSRF header');
       const origin = req.headers.origin;
@@ -88,12 +91,20 @@ export async function buildApp(deps: AppDeps, opts: { logger?: boolean } = {}): 
     }
     if (PUBLIC_API.has(urlPath)) return;
 
-    const limits = { idleHours: deps.config.SESSION_IDLE_HOURS, maxDays: deps.config.SESSION_MAX_DAYS };
-    const session = await resolveSession(deps.db, req.cookies[SESSION_COOKIE], limits);
-    if (!session) throw unauthorized();
-    const actor = await loadActor(deps.db, session.userId);
+    let userId: string | undefined;
+    if (bearer) {
+      userId = await resolveApiToken(deps.db, bearer);
+      if (!userId) throw unauthorized('Invalid or expired API token');
+      if (urlPath.startsWith('/api/auth/')) throw new AppError(403, 'forbidden', 'API tokens cannot manage sessions or tokens');
+    } else {
+      const limits = { idleHours: deps.config.SESSION_IDLE_HOURS, maxDays: deps.config.SESSION_MAX_DAYS };
+      const session = await resolveSession(deps.db, req.cookies[SESSION_COOKIE], limits);
+      if (!session) throw unauthorized();
+      req.session = session;
+      userId = session.userId;
+    }
+    const actor = await loadActor(deps.db, userId);
     if (!actor) throw unauthorized();
-    req.session = session;
     req.ctx = { db: deps.db, actor, requestId: req.id, ip: req.ip };
 
     // Users with a temporary password may only change it.

@@ -4,6 +4,7 @@ import './resources/defs/index.ts';
 import './core/actions.ts';
 import './modules/rules.ts';
 import { authRoutes } from './auth/routes.ts';
+import { tokenRoutes } from './auth/tokens.ts';
 import { resourceRoutes } from './resources/routes.ts';
 import { collabRoutes } from './modules/collab.ts';
 import { adminRoutes } from './modules/admin.ts';
@@ -25,6 +26,7 @@ import { executiveRoutes } from './modules/executive.ts';
 
 export async function registerRoutes(app: FastifyInstance) {
   await authRoutes(app);
+  await tokenRoutes(app);
   await resourceRoutes(app);
   await collabRoutes(app);
   await adminRoutes(app);

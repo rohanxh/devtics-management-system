@@ -14,6 +14,12 @@ Every mutating request must send `X-Requested-With: dms`. Errors have the shape
 | GET | `/api/auth/me` | current user, roles, permissions (`{perm: scope}`) |
 | POST | `/api/auth/change-password` | `{currentPassword, newPassword}` |
 
+## API tokens (integrations)
+Create personal tokens in the UI (user menu › API tokens) or via `POST /api/auth/tokens` `{name, expiresInDays}` from a
+signed-in session; the secret is returned once. Call the API with `Authorization: Bearer dms_…` — no cookie and no CSRF
+header. Tokens act with exactly the owner's permissions, expire (≤ 365 days), can be revoked (`DELETE /api/auth/tokens/:id`),
+and cannot reach `/api/auth/*`. Only a SHA-256 hash is stored; creation and revocation are audited.
+
 ## Metadata & search
 | GET | `/api/meta` | user, visible resources with field metadata and allowed actions, pipelines, public settings |
 |---|---|---|

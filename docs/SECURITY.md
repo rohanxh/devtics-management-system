@@ -16,6 +16,11 @@ DMS holds sensitive business, financial and HR data. Controls below reference OW
 - New users and admin resets get a random temporary password shown once to the admin and must change it at first
   sign-in (all other API calls return 403 until they do).
 
+## API tokens
+Bearer tokens (`dms_` + 256-bit random) for integrations: hashed at rest, expiring, revocable, owner-scoped permissions,
+unable to manage sessions/tokens, creation/revocation audited (`API_TOKEN_CREATED/REVOKED`). Requests with a Bearer token
+ignore cookies, so they are not exposed to CSRF.
+
 ## Request protection
 - **CSRF**: every mutating `/api` request must carry `X-Requested-With: dms` (cannot be sent cross-origin without
   CORS, which is not enabled) and, when an `Origin` header is present, it must match `APP_ORIGIN`.
