@@ -181,3 +181,14 @@ RULE_SEEDS.push(
     eventType: 'employees.status_changed', conditions: { to: ['terminated', 'resigned'] }, actions: [{ action: 'it.offboarding' }],
   },
 );
+
+// ── Marketing ──
+RULE_SEEDS.push(
+  assign('content_items', 'content piece'),
+  assign('campaigns', 'campaign'),
+  assign('seo_keywords', 'keyword'),
+  {
+    key: 'leads.created.marketing', name: 'New lead → BD', description: 'Tell Business Development about new leads (e.g. from campaigns or the website).',
+    eventType: 'leads.created', actions: [{ action: 'notify_roles', params: { roles: ['bd'], title: 'New lead: {title}' } }],
+  },
+);

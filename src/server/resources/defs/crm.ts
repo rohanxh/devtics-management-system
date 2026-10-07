@@ -121,6 +121,7 @@ defineResource({
     phone: { type: 'phone', label: 'Phone', group: 'Prospect' },
     companyId: { type: 'ref', ref: 'companies', label: 'Existing company', group: 'Prospect' },
     source: { type: 'enum', label: 'Source', options: SOURCES, list: true, filter: true, default: 'website' },
+    campaignId: { type: 'ref', ref: 'campaigns', label: 'Campaign', filter: true },
     projectType: { type: 'enum', label: 'Project type', options: PROJECT_TYPES, filter: true },
     estimatedValue: { type: 'money', label: 'Estimated value', list: true, min: 0 },
     ownerId: { type: 'ref', ref: 'users', label: 'Owner', list: true, filter: true, default: me },

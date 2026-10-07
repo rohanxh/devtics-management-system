@@ -17,6 +17,7 @@ import { financeRoutes } from './modules/finance.ts';
 import { hrRoutes } from './modules/hr.ts';
 import './modules/kpi.ts';
 import './modules/it.ts';
+import './modules/marketing.ts';
 
 export async function registerRoutes(app: FastifyInstance) {
   await authRoutes(app);

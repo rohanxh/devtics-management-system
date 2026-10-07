@@ -6,6 +6,7 @@ import { users, pipelineStages } from './core.ts';
 import { projectType } from './enums.ts';
 // Cyclic import is safe: references are resolved lazily.
 import { projects } from './projects.ts';
+import { campaigns } from './marketing.ts';
 
 export const companyLifecycle = pgEnum('company_lifecycle', ['prospect', 'client', 'former_client', 'partner', 'vendor']);
 export const companySize = pgEnum('company_size', ['1-10', '11-50', '51-200', '201-1000', '1000+']);
@@ -71,8 +72,8 @@ export const leads = pgTable('leads', {
   companyId: uuid().references(() => companies.id),
   contactId: uuid().references(() => contacts.id),
   source: leadSource().notNull().default('website'),
-  /** Marketing attribution (FK added with the marketing module). */
-  campaignId: uuid(),
+  /** Marketing attribution. */
+  campaignId: uuid().references((): AnyPgColumn => campaigns.id, { onDelete: 'set null' }),
   status: leadStatus().notNull().default('new'),
   ownerId: uuid().references(() => users.id),
   estimatedValue: money(),

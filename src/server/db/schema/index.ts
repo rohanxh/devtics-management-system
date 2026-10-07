@@ -7,3 +7,4 @@ export * from './engineering.ts';
 export * from './hr.ts';
 export * from './strategy.ts';
 export * from './it.ts';
+export * from './marketing.ts';
