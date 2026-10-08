@@ -33,7 +33,6 @@ marketing, support, KB, notifications, reports) — all passing at the time of w
 - Nothing partially implemented.
 
 ## Remaining work / not yet built
-- **Git push**: blocked — see Blockers.
 - Integrations (documented interfaces only, no fake integrations): GitHub (PRs/deployments), GA4/Search Console (traffic,
   rankings), accounting export, Slack, calendar, password-manager API lookups, email-to-ticket.
 - MFA (TOTP) for privileged roles; self-service password reset by email.
@@ -69,13 +68,11 @@ marketing, support, KB, notifications, reports) — all passing at the time of w
 ## Security considerations
 See SECURITY.md. Open items: MFA, email-based reset, upload AV scanning, shared rate-limit store, DB role separation in production.
 
-## Blockers (need the owner)
-- **Git push**: this machine authenticates to GitHub as `m-rohanxh`, which has no write access to
-  `rohanxh/devtics-management-system` (HTTP 403). All work is committed locally on `main`. Fix: add `m-rohanxh` as a
-  collaborator, or sign Git in as `rohanxh`, then `git push -u origin main`.
+## Blockers
+- None. Pushing works with the `rohanxh` GitHub account (set via `credential.https://github.com.username`).
 
 ## Next recommended steps
-1. Resolve the push blocker and set up CI (typecheck + tests + build).
+1. Watch the GitHub Actions CI run (typecheck + tests + build) and keep it green.
 2. Deploy a staging instance on PostgreSQL; run `npm run create-admin`; walk through each role's dashboard.
 3. First real integration on top of API tokens (GitHub webhooks for PRs/deployments).
 4. MFA for CEO/CTO/Finance/HR/Admin.
