@@ -5,6 +5,8 @@ const Env = z.object({
   PORT: z.coerce.number().int().default(4000),
   APP_ORIGIN: z.url().default('http://localhost:5173'),
   DATABASE_URL: z.string().optional(),
+  /** Direct (non-pooled) connection for migrations, e.g. Neon's DATABASE_URL_UNPOOLED. Falls back to DATABASE_URL. */
+  DATABASE_URL_UNPOOLED: z.string().optional(),
   PGLITE_DIR: z.string().default('.data/pglite'),
   STORAGE_DIR: z.string().default('storage/uploads'),
   SMTP_URL: z.string().optional(),

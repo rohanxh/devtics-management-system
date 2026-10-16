@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { randomBytes } from 'node:crypto';
 import { loadConfig } from '../config.ts';
 import { createDatabase } from './client.ts';
-import { runMigrations } from './migrate.ts';
+import { migrate } from './migrate.ts';
 import { seedSystem } from './seed-system.ts';
 import { roles, userRoles, users } from './schema/index.ts';
 import { hashPassword } from '../auth/password.ts';
@@ -23,7 +23,7 @@ if (!values.email || !values.name || !/^[^@\s]+@[^@\s]+$/.test(values.email)) {
 }
 const cfg = loadConfig();
 const database = await createDatabase({ databaseUrl: cfg.DATABASE_URL, pgliteDir: cfg.PGLITE_DIR });
-await runMigrations(database);
+await migrate(database, cfg);
 await seedSystem(database.db);
 const roleKeys = [...new Set(['employee', ...values.roles!.split(',').map((r) => r.trim()).filter(Boolean)])];
 const found = await database.db.select().from(roles).where(inArray(roles.key, roleKeys));

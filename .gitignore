@@ -5,3 +5,6 @@ storage/
 .env
 *.log
 coverage/
+.env.local
+.env.*.local
+.neon

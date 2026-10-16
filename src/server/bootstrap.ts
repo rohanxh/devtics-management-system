@@ -6,7 +6,7 @@ import './modules/clients.ts';
 import './core/mailer.ts';
 import type { Config } from './config.ts';
 import { createDatabase } from './db/client.ts';
-import { runMigrations } from './db/migrate.ts';
+import { migrate } from './db/migrate.ts';
 import { seedSystem } from './db/seed-system.ts';
 import { EventProcessor } from './core/events.ts';
 import { Storage } from './core/storage.ts';
@@ -18,7 +18,7 @@ export async function bootstrap(config: Config, opts: { inMemory?: boolean; logg
     databaseUrl: opts.inMemory ? undefined : config.DATABASE_URL,
     pgliteDir: opts.inMemory ? undefined : config.PGLITE_DIR,
   });
-  await runMigrations(database);
+  await migrate(database, opts.inMemory ? {} : config);
   await seedSystem(database.db);
   const events = new EventProcessor(database.db);
   const storage = new Storage(config.STORAGE_DIR);
