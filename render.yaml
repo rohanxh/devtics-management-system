@@ -1,0 +1,20 @@
+# Render Blueprint: one always-on Node web service (API + built SPA). Database is Neon (project odd-bread-71818479).
+services:
+  - type: web
+    name: devtics-dms
+    runtime: node
+    region: oregon # same region as the Neon database (aws-us-west-2)
+    plan: free # free: sleeps after 15 min idle, uploads are lost on restart; use a paid plan + disk for real use
+    numInstances: 1 # scheduler, event worker and rate limits are single-process (ARCHITECTURE D6)
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start # applies migrations + system seed on boot (idempotent)
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL # Neon pooled connection string (-pooler host)
+        sync: false
+      - key: DATABASE_URL_UNPOOLED # Neon direct connection string, used for migrations
+        sync: false

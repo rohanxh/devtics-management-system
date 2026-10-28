@@ -5,7 +5,7 @@ import { watch } from 'node:fs';
 let child;
 let timer;
 const start = () => {
-  child = spawn(process.execPath, ['--env-file-if-exists=.env', 'src/server/index.ts'], { stdio: 'inherit' });
+  child = spawn(process.execPath, ['--env-file-if-exists=.env', '--env-file-if-exists=.env.local', 'src/server/index.ts'], { stdio: 'inherit' });
 };
 const restart = () => {
   clearTimeout(timer);
